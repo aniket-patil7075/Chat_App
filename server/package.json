@@ -4,8 +4,11 @@
   "description": "It is chat app project using mernstack",
   "main": "index.js",
   "scripts": {
-    "test": "start"
+    
+    "start": "node index.js",
+    "dev": "nodemon index.js"
   },
+  "type": "module",
   "author": "Ekata Jadhav",
   "license": "ISC",
   "dependencies": {
@@ -15,7 +18,11 @@
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.8.1",
-    "nodemon": "^3.1.7"
-  }
+    "mongoose": "^8.8.1"
+   
+  },
+  "devDependencies": {
+     "nodemon": "^3.1.7"
+  },
+  "keywords": []
 }
