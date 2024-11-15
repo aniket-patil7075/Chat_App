@@ -1,13 +1,15 @@
-import mongoose from "mongoose"
-import {genSalt, hash} from "bcryptjs"
+import mongoose from "mongoose";
+import bcryptjs from "bcryptjs";
+
+const { genSalt, hash } = bcryptjs;
 
 const userSchema = new mongoose.Schema({
-    email:{
-        type : String,
+    email: {
+        type: String,
         required: [true, "Email is Required."],
         unique: true,
     },
-    password:{
+    password: {
         type: String,
         required: [true, "Password is Required."],
     },
@@ -16,28 +18,28 @@ const userSchema = new mongoose.Schema({
         required: false,
     },
     lastName: {
-        type : String,
+        type: String,
         required: false,
-    }, 
+    },
     image: {
         type: String,
         required: false,
     },
     color: {
-        type : Number,
+        type: Number,
         required: false,
-    }, 
+    },
     profileSetup: {
         type: Boolean,
         default: false,
     },
-})
+});
 
-userSchema.pre("save", async function(next){
+userSchema.pre("save", async function (next) {
     const salt = await genSalt();
-    this.password = await hash(this.password,salt)
+    this.password = await hash(this.password, salt);
     next();
-})
+});
 
-const User = mongoose.model("Users",userSchema);
+const User = mongoose.model("Users", userSchema);
 export default User;
