@@ -72,3 +72,30 @@ export const login = async (request , response, next )=>{
         return response.status(500).send("Internal server error")
     }
 }
+export const getUserInfo =async (request , response, next )=>{
+    try{
+        
+       
+
+    //     response.cookie("jwt", createToken(email,user.id),{
+    //         maxAge,
+    //         secure: true,
+    //         sameSite: "None",
+    //     });
+    //     return response.status(200).json({user:{
+    //         id : user.id,
+    //         email : user.email,
+    //         profileSetup : user.profileSetup,
+    //         firstName:user.firstName,
+    //         lastName:user.lastName,
+    //         image:user.iamge,
+    //         colors:user.colors
+    //     },
+    // })
+
+    }catch(error){
+        console.log({error})
+        return response.status(500).send("Internal server error")
+    }
+
+}
