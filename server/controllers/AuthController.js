@@ -75,23 +75,24 @@ export const login = async (request , response, next )=>{
 export const getUserInfo =async (request , response, next )=>{
     try{
         
-       
+       const userData =await User.findById(request.userId)
+       if(!userData){
+        return response.status(404).send("User with the give id not found")
 
-    //     response.cookie("jwt", createToken(email,user.id),{
-    //         maxAge,
-    //         secure: true,
-    //         sameSite: "None",
-    //     });
-    //     return response.status(200).json({user:{
-    //         id : user.id,
-    //         email : user.email,
-    //         profileSetup : user.profileSetup,
-    //         firstName:user.firstName,
-    //         lastName:user.lastName,
-    //         image:user.iamge,
-    //         colors:user.colors
-    //     },
-    // })
+       }
+       return response.status(200).json({
+        
+            id:userData.id,
+            email:userData.email,
+            profileSetup:userData.profileSetup,
+            firstName:userData.firstName,
+            lastName:userData.lastName,
+            image:userData.iamge,
+            colors:userData.colors
+       
+       })
+
+   
 
     }catch(error){
         console.log({error})
