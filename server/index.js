@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import express from "express";
 import cors from "cors";
 import authRoutes from "./routes/AuthRoute.js";
+import contactsRoutes from "./routes/ContactsRoute.js";
 
 dotenv.config();
 const app = express();
@@ -21,7 +22,8 @@ app.use("/uploads/profiles",express.static("uploads/profiles"))
 app.use(cookieParser());
 app.use(express.json());
 
-app.use("/api/auth",authRoutes)
+app.use("/api/auth",authRoutes);
+app.use("/api/contacts",contactsRoutes)
 
 const server = app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);

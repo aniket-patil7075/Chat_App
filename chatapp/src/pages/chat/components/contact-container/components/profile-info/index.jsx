@@ -2,14 +2,28 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { getColor } from "@/lib/utils";
 import { useAppStore } from "@/store";
-import { HOST } from "@/utils/constants";
+import { HOST, LOGOUT_ROUTE } from "@/utils/constants";
 import { FiEdit2 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
-import {IoLogOut} from "react-icons/io5"
+import { IoPowerSharp} from "react-icons/io5"
+import { apiClient } from "@/lib/api-client";
 
 function ProfileInfo() {
-  const { userInfo } = useAppStore();
+  const { userInfo,setUserInfo } = useAppStore();
   const navigate =useNavigate();
+
+  const logOut =async()=>{
+    try{
+      const response =await apiClient.post(LOGOUT_ROUTE,{},{withCredentials:true});
+      if(response.status===200){
+        navigate("/auth");
+        setUserInfo(null)
+      }
+    }catch(error){
+      console.log(error);
+      
+    }
+  }
   return (
     <div className="absolute bottom-0 h-16 flex items-center just px-10 w-full bg-[#2a2b33]">
       <div className="flex gap-3 items-center justify-center">
@@ -55,7 +69,7 @@ function ProfileInfo() {
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger>
-                <IoLogOut className="text-purple-500 text-xl font-medium " onClick={()=>navigate('/profile')}/>
+                <IoPowerSharp className="text-red-500 text-xl font-medium " onClick={logOut}/>
                 </TooltipTrigger>
             <TooltipContent className="bg-[#1c1b1e] border-none text-white">
               Logout
