@@ -6,6 +6,7 @@ import cors from "cors";
 import authRoutes from "./routes/AuthRoute.js";
 import contactsRoutes from "./routes/ContactsRoute.js";
 import setupSocket from "./socket.js";
+import messagesRoutes from "./routes/MessagesRoute.js";
 
 dotenv.config();
 const app = express();
@@ -25,6 +26,7 @@ app.use(express.json());
 
 app.use("/api/auth",authRoutes);
 app.use("/api/contacts",contactsRoutes)
+app.use("/api/messages",messagesRoutes)
 
 const server = app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
