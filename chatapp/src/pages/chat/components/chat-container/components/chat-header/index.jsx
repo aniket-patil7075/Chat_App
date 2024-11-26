@@ -10,7 +10,7 @@ function ChatHeader() {
       <div className="flex gap-5 items-center  w-full justify-between">
         <div className="flex gap-5 ml-7 items-center justify-center ">
         <div className="w-12 h-12 relative">
-          <Avatar className="h-12 w-12 rounded-full overflow-hidden">
+          <Avatar className="h-12 w-12 rounded-full overflow-hidden bg-white">
             {selectedChatData.image ? (
               <AvatarImage
                 src={`${HOST}/${selectedChatData.image}`}
