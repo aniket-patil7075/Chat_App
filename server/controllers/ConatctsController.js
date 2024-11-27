@@ -108,27 +108,17 @@ export const getContactsForDMList =async (request , response, next )=>{
 export const getAllContacts =async (request , response, next )=>{
     try{
        
-        const users=await User.find({_id:{$ne : request.userId}},"firstName lastName _id")
-        if(searchTerm === undefined || searchTerm ===null){
-            return response.status(400).send("SearchTerm is required.")
-        }
+        const users=await User.find({_id:{$ne : request.userId}},"firstName lastName _id");
 
-        const sanitizedSearchTerm =searchTerm.replace(
-            /[.*+?^${}()|[\]\\]/g,"\\$&"
-        );
-         const regex=new RegExp(sanitizedSearchTerm,"i");
-
-         const contacts =await User.find({
-           $and: [ {_id: {$ne:request.userId}},
-            {
-                $or : [{firstName:regex},{lastName:regex},{email:regex}],
-           },],
-         });
+        const contacts = users.map((user)=>({
+            label:user.firstName ? ` ${user.firstName} ${user.lastName}`: user.email,
+            value:user._id,
+        }))
+        
 
          return response.status(200).json({contacts});
 
        
-         return response.status(200).send("Logout successfull");
    
 
     }catch(error){

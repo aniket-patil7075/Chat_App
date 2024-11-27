@@ -2,10 +2,10 @@ import { useAppStore } from "@/store";
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import ConatctContainer from "./components/contact-container";
 import EmptyContainer from "./components/empty-container";
 import ChatContainer from "./components/chat-container";
 import EmptyChatContainer from "./components/empty-container";
+import ConatctContainer from "./components/contact-container";
 
 export const Chat = () => {
   const {
@@ -41,7 +41,7 @@ export const Chat = () => {
           {fileDownloadProgress}%
         </div>
       )}
-      <ConatctContainer />
+      < ConatctContainer/>
       {selectedChatType === undefined ? (
         <EmptyChatContainer />
       ) : (
