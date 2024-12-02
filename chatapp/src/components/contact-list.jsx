@@ -26,7 +26,7 @@ const ContactList = ({contacts,isChannel =false}) => {
   return (
   <div className="mt-5">
     {contacts.map((contact) => {
-      console.log(contact); // Logs each contact
+      console.log(contact); 
       return (
         <div
           key={contact._id}
