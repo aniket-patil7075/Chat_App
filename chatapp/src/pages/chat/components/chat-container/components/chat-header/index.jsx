@@ -2,6 +2,7 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { getColor } from "@/lib/utils";
 import { useAppStore } from "@/store";
 import { HOST } from "@/utils/constants";
+import { FaTrash } from "react-icons/fa";
 import { RiCloseFill } from "react-icons/ri";
 function ChatHeader() {
   const { closeChat, selectedChatData, selectedChatType } = useAppStore();
@@ -45,7 +46,15 @@ function ChatHeader() {
               : selectedChatData.email}
           </div>
         </div>
-        <div className="flex items-center justify-center gap-5">
+        
+        <div className="flex items-center justify-center gap-5 mr-5">
+        <button
+            className="text-neutral-500 focus:border-none focus:outline-none focus:text-white duration-300 transition-all"
+            
+          >
+            <FaTrash className="text-xl cursor-pointer" />
+          </button>
+        
           <button
             className="text-neutral-500 focus:border-none focus:outline-none focus:text-white duration-300 transition-all"
             onClick={closeChat}

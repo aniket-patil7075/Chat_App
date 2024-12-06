@@ -66,75 +66,22 @@ export default ContactContainer;
 
 const Logo = () => {
   return (
-    <div className="flex p-5 justify-start items-center gap-2">
+    <div className="flex p-5 justify-start items-center ">
       <svg
-        id="logo-circle-6"
-        width="80"
-        height="40"
-        viewBox="0 0 80 40"
+        width="117"
+        height="48"
+        viewBox="0 0 78 32"
+        fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
-        <circle
-          cx="20"
-          cy="20"
-          r="15"
-          className="circle1"
-          fill="#34d399"
-        ></circle>
-        <circle
-          cx="40"
-          cy="20"
-          r="15"
-          className="circle2"
-          fill="#10b981"
-        ></circle>
-        <circle
-          cx="60"
-          cy="20"
-          r="15"
-          className="circle3"
-          fill="#047857"
-        ></circle>
+        <polygon points="6,4 22,16 6,28" fill="#a4c9fc" />
+        <polygon points="24,4 40,16 24,28" fill="#3b82f6" />
+        <polygon points="42,4 58,16 42,28" fill="#2a5fb4" />
       </svg>
-      <span className="text-3xl font-semibold">VibeChat</span>
 
-      <style>
-        {`
-          .circle1, .circle2, .circle3 {
-            animation: colorChange 3s infinite ease-in-out;
-          }
-
-          .circle1 {
-            animation-delay: 0s;
-          }
-
-          .circle2 {
-            animation-delay: 0.5s;
-          }
-
-          .circle3 {
-            animation-delay: 1s;
-          }
-
-          @keyframes colorChange {
-            0% {
-              fill: #34d399;
-            }
-            25% {
-              fill: #10b981;
-            }
-            50% {
-              fill: #047857;
-            }
-            75% {
-              fill: #2d6a4f;
-            }
-            100% {
-              fill: #34d399;
-            }
-          }
-        `}
-      </style>
+      <span className="text-xl font-bold uppercase tracking-widest text-neutral-300">
+        CHAT-VERSE
+      </span>
     </div>
   );
 }

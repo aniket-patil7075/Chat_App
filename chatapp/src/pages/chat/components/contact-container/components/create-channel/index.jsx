@@ -14,7 +14,7 @@ import {
   } from "@/components/ui/dialog";
   
   import { useEffect, useRef, useState } from "react";
-  import { FaPlus } from "react-icons/fa";
+  import { FaPlus ,FaTrash } from "react-icons/fa";
   import { Input } from "@/components/ui/input";
   import { apiClient } from "@/lib/api-client";
   import { CREATE_CHANNEL_ROUTE, GET_ALL_CONTACTS_ROUTES } from "@/utils/constants";
@@ -153,7 +153,7 @@ import { getColor } from "@/lib/utils";
             </Avatar>
             {hovered && (
               <div
-                className="absolute inset-0 flex items-center justify-center bg-black/50 ring-fuchsia-500 rounded-full"
+                className="absolute inset-0 flex items-center justify-center bg-black/50 ring-sky-600 rounded-full"
                 onClick={image ? handleDeleteImage : handleFileInputClick}
               >
                 {image ? (
@@ -196,7 +196,7 @@ import { getColor } from "@/lib/utils";
            
             
             <div>
-                <Button className="w-full bg-purple-700 hover:bg-purple-900 transition-all duration-300" onClick={createChannel}>Create Channel</Button>
+                <Button className="w-full bg-sky-600 hover:bg-sky-700 transition-all duration-300" onClick={createChannel}>Create Channel</Button>
             </div>
            
           </DialogContent>
