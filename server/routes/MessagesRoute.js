@@ -1,6 +1,6 @@
 import {Router} from 'express'
 import {verifyToken} from '../middlewares/AuthMiddleware.js';
-import { getMessages, uploadFile } from '../controllers/MessagesController.js';
+import { deleteChatMessages, getMessages, uploadFile } from '../controllers/MessagesController.js';
 import multer from "multer"
 
 const messagesRoutes=Router();
@@ -14,3 +14,5 @@ messagesRoutes.post(
     uploadFile)
 
 export default messagesRoutes
+
+messagesRoutes.post("/delete-messages", verifyToken, deleteChatMessages);

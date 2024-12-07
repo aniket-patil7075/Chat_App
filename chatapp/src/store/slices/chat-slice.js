@@ -47,6 +47,16 @@ export const createChatSlice=(set,get)=>({
                 ],
             });
         },
+        // deleteChat: (userId) => {
+        //     const allMessages = get().selectedChatMessages;
+    
+        //     const updatedMessages = allMessages.filter(
+        //         (message) =>
+        //             message.sender !== userId && message.recipient !== userId
+        //     );
+    
+        //     set({ selectedChatMessages: updatedMessages });
+        // },
         addChannelInChannelList:(message)=>{
             const channels=get().channels;
             const data= channels.find((channel)=>channel._id===message.channelId);
@@ -87,4 +97,3 @@ export const createChatSlice=(set,get)=>({
         }
 });
 
-// hjkhjhjhj
