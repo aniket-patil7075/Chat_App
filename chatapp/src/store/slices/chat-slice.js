@@ -91,7 +91,6 @@ export const createChatSlice=(set,get)=>({
         addContactsInDmContacts: (message) => {
             const userId = get().userInfo.id;
         
-            // Determine the `fromId` and `fromData` based on who the user is
             const fromId = 
                 message.sender._id === userId
                     ? message.recipient._id
@@ -102,23 +101,19 @@ export const createChatSlice=(set,get)=>({
         
             const dmContacts = get().directMessagesContact;
         
-            // Find the contact in the dmContacts list
             const data = dmContacts.find((contact) => contact._id === fromId);
             const index = dmContacts.findIndex((contact) => contact._id === fromId);
         
             if (index !== -1) {
-                // If the contact exists, update their messageCount
                 if (message.sender._id !== userId) {
-                    // Only update messageCount if the sender is not the user
                     data.messageCount = (data.messageCount || 0) + 1;
                 }
-                dmContacts.splice(index, 1); // Remove the contact from the current position
-                dmContacts.unshift(data);   // Add the contact to the top
+                dmContacts.splice(index, 1); 
+                dmContacts.unshift(data);   
             } else {
-                // Add new contact only if the sender is not the user
                 if (message.sender._id !== userId) {
-                    fromData.messageCount = 1; // Initialize messageCount for new contact
-                    dmContacts.unshift(fromData); // Add the contact to the list
+                    fromData.messageCount = 1; 
+                    dmContacts.unshift(fromData); 
                 }
             }
         

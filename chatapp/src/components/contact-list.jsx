@@ -12,6 +12,8 @@ const ContactList = ({contacts,isChannel =false}) => {
         setSelectedChatType,
         selectedChatType,
         setSelectedChatMessages,
+        setDirectMessagesContact, 
+        directMessagesContact,
       } = useAppStore();
     
       const handleClick = (contact) => {
@@ -21,6 +23,14 @@ const ContactList = ({contacts,isChannel =false}) => {
     
         if (selectedChatData && selectedChatData._id !== contact._id) {
           setSelectedChatMessages([]);
+        }
+        if (!isChannel && contact.messageCount > 0) {
+          const updatedContacts = [...directMessagesContact]; 
+          const contactIndex = updatedContacts.findIndex((c) => c._id === contact._id);
+          if (contactIndex !== -1) {
+            updatedContacts[contactIndex].messageCount = 0; 
+            setDirectMessagesContact(updatedContacts);      
+          }
         }
       };
   return (

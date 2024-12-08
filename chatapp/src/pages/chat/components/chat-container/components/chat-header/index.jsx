@@ -62,6 +62,7 @@ function ChatHeader() {
               GET_USER_DETAILS_ROUTE.replace(":userId", memberId),
               { withCredentials: true }
             );
+            // console.log("Response for Profile pic : ", response)
             newUsernames[memberId] = response.data.userDetails.username;
           }
         }
