@@ -30,7 +30,7 @@ const ContactList = ({contacts,isChannel =false}) => {
       return (
         <div
           key={contact._id}
-          className={`pl-10 py-2 transition-all duration-300 cursor-pointer ${
+          className={`pl-10 py-2 transition-all duration-300 cursor-pointer  ${
             selectedChatData && selectedChatData._id === contact._id
               ? "bg-[#3d71bb] hover:bg-[#3d71bb]"
               : "hover:bg-[#f1f1f111]"
@@ -75,7 +75,13 @@ const ContactList = ({contacts,isChannel =false}) => {
                   : contact.email}
               </span>
             )}
+            {!isChannel && contact.messageCount > 0 && (
+              <div className="text-sm bg-[#4478c2] text-white px-2 py-1 rounded-full">
+                <span >+</span>{contact.messageCount} 
+              </div>
+            )}
           </div>
+          
         </div>
       );
     })}

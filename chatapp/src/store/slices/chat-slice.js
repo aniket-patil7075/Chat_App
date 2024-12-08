@@ -47,16 +47,6 @@ export const createChatSlice=(set,get)=>({
                 ],
             });
         },
-        // deleteChat: (userId) => {
-        //     const allMessages = get().selectedChatMessages;
-    
-        //     const updatedMessages = allMessages.filter(
-        //         (message) =>
-        //             message.sender !== userId && message.recipient !== userId
-        //     );
-    
-        //     set({ selectedChatMessages: updatedMessages });
-        // },
         addChannelInChannelList:(message)=>{
             const channels=get().channels;
             const data= channels.find((channel)=>channel._id===message.channelId);
@@ -71,29 +61,69 @@ export const createChatSlice=(set,get)=>({
             }
         },
 
-        addContactsInDmContacts:(message)=>{
-            const userId=get().userInfo.id;
-            const fromId=
-            message.sender._id===userId
-            ? message.recipient._id
-            :message.sender._id;
-
-            const fromData=
-            message.sender._id===userId ? message.recipient : message.sender;
-            const dmContacts =get().directMessagesContact;
-            const data=dmContacts.find((contact)=>contact._id===fromId);
-            const index = dmContacts.findIndex((contact)=>contact._id===fromId);
-
-            if(index !== -1 && index !== undefined){
-                dmContacts.splice(index,1)
-                dmContacts.unshift(data);
-                
+        // addContactsInDmContacts: (message) => {
+        //     const userId = get().userInfo.id;
+        //     const fromId = 
+        //         message.sender._id === userId
+        //             ? message.recipient._id
+        //             : message.sender._id;
+        
+        //     const fromData =
+        //         message.sender._id === userId ? message.recipient : message.sender;
+        
+        //     const dmContacts = get().directMessagesContact;
+        //     const data = dmContacts.find((contact) => contact._id === fromId);
+        //     const index = dmContacts.findIndex((contact) => contact._id === fromId);
+        
+        //     if (index !== -1) {
+        //         // Update message count for existing contact
+        //         data.messageCount = (data.messageCount || 0) + 1;
+        //         dmContacts.splice(index, 1);
+        //         dmContacts.unshift(data);
+        //     } else {
+        //         // Add new contact with initial message count
+        //         fromData.messageCount = 1;
+        //         dmContacts.unshift(fromData);
+        //     }
+        
+        //     set({ directMessagesContact: dmContacts });
+        // }
+        addContactsInDmContacts: (message) => {
+            const userId = get().userInfo.id;
+        
+            // Determine the `fromId` and `fromData` based on who the user is
+            const fromId = 
+                message.sender._id === userId
+                    ? message.recipient._id
+                    : message.sender._id;
+        
+            const fromData =
+                message.sender._id === userId ? message.recipient : message.sender;
+        
+            const dmContacts = get().directMessagesContact;
+        
+            // Find the contact in the dmContacts list
+            const data = dmContacts.find((contact) => contact._id === fromId);
+            const index = dmContacts.findIndex((contact) => contact._id === fromId);
+        
+            if (index !== -1) {
+                // If the contact exists, update their messageCount
+                if (message.sender._id !== userId) {
+                    // Only update messageCount if the sender is not the user
+                    data.messageCount = (data.messageCount || 0) + 1;
+                }
+                dmContacts.splice(index, 1); // Remove the contact from the current position
+                dmContacts.unshift(data);   // Add the contact to the top
+            } else {
+                // Add new contact only if the sender is not the user
+                if (message.sender._id !== userId) {
+                    fromData.messageCount = 1; // Initialize messageCount for new contact
+                    dmContacts.unshift(fromData); // Add the contact to the list
+                }
             }
-            else {
-                dmContacts.unshift(fromData);
-                
-            }
-            set({directMessagesContact:dmContacts})
+        
+            set({ directMessagesContact: dmContacts });
         }
+        
+        
 });
-

@@ -115,11 +115,7 @@ export const getAllContacts =async (request , response, next )=>{
             value:user._id,
         }))
         
-
          return response.status(200).json({contacts});
-
-       
-   
 
     }catch(error){
         console.log({error})
@@ -127,3 +123,29 @@ export const getAllContacts =async (request , response, next )=>{
     }
 
 }
+
+export const getUserDetails = async (request, response, next) => {
+    try {
+      const { userId } = request.params; // Assuming `userId` is passed as a route parameter
+  
+      // Find the user by ID
+      const user = await User.findById(userId, "firstName lastName email _id");
+  
+      if (!user) {
+        return response.status(404).json({ message: "User not found" });
+      }
+  
+      // Construct the response object
+      const userDetails = {
+        username: user.firstName ? `${user.firstName} ${user.lastName}` : "Unknown User",
+        email: user.email,
+        id: user._id,
+      };
+  
+      return response.status(200).json({ userDetails });
+    } catch (error) {
+      console.error("Error fetching user details:", error);
+      return response.status(500).send("Internal server error");
+    }
+  };
+  
