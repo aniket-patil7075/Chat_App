@@ -24,3 +24,4 @@ export const   CHANNEL_ROUTES='api/channel';
 export const CREATE_CHANNEL_ROUTE=`${CHANNEL_ROUTES}/create-channel`;
 export const GET_USER_CHANNELS_ROUTES=`${CHANNEL_ROUTES}/get-user-channels`;
 export const GET_CHANNEL_MESSAGES=`${CHANNEL_ROUTES}/get-channel-messages`;
+export const ADD_CHANNEL_IMAGE_ROUTE =`${CHANNEL_ROUTES}/add-channel-image`;

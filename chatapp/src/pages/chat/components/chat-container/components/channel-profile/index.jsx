@@ -12,102 +12,98 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { apiClient } from "@/lib/api-client";
 import {
+  ADD_CHANNEL_IMAGE_ROUTE,
   ADD_PROFILE_IMAGE_ROUTE,
   HOST,
   REMOVE_PROFILE_IMAGE_ROUTE,
   UPDATE_PROFILE_ROUTE,
 } from "@/utils/constants";
+import { useLocation } from "react-router-dom";
 
-const Profile = () => {
+const ChannelProfile = () => {
+  const location = useLocation();
+  const { selectedChatData } = location.state || {};
+  console.log(selectedChatData);
+
   const navigate = useNavigate();
-  const { userInfo, setUserInfo } = useAppStore();
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
   const [image, setImage] = useState(null);
   const [hovered, setHovered] = useState(false);
   const [selectedColor, setSelectedColor] = useState(0);
   const fileInputRef = useRef(null);
+  const channels = useAppStore((state) => state.channels);
+
+
 
   useEffect(() => {
-    if (userInfo.profileSetup) {
-      setFirstName(userInfo.firstName);
-      setLastName(userInfo.lastName);
-      setSelectedColor(userInfo.color);
-    }
-    if (userInfo.image) {
-      setImage(`${HOST}/${userInfo.image}`);
-    }
-  }, [userInfo]);
-
-  const validateProfile = () => {
-    if (!firstName) {
-      toast.error("First Name is required");
-      return false;
-    }
-    if (!lastName) {
-      toast.error("Last Name is required");
-      return false;
-    }
-    return true;
-  };
+    
+  }, []);
 
   const svaeChanges = async () => {
-    if (validateProfile()) {
-      try {
-        const response = await apiClient.post(
-          UPDATE_PROFILE_ROUTE,
-          { firstName, lastName, color: selectedColor },
-          { withCredentials: true }
-        );
-        if (response.status === 200 && response.data) {
-          setUserInfo({ ...response.data });
-          toast.success("Profile Updated successfully.");
-          navigate("/chat");
-        }
-      } catch (error) {
-        console.log(error);
-      }
+    try {
+      
+    } catch (error) {
+      console.log(error);
     }
   };
 
   const handleNavigate = () => {
-    if (userInfo.profileSetup) {
+    
       navigate("/chat");
-    } else {
-      toast.error("Please setup profile.");
-    }
+    
   };
 
   const handleFileInputClick = () => {
     fileInputRef.current.click();
   };
+
   const handleImageChange = async (event) => {
     const file = event.target.files[0];
-    console.log({ file });
-    if (file) {
+    if (!file) {
+      console.log("No file selected.");
+      return;
+    }
+  
+    if (!selectedChatData?._id) {
+      console.log("Chat ID is missing.");
+      return;
+    }
+    if (file && selectedChatData?._id) { 
       const formData = new FormData();
-      formData.append("profile-image", file);
-      const response = await apiClient.post(ADD_PROFILE_IMAGE_ROUTE, formData, {
-        withCredentials: true,
-      });
-      if (response.status === 200 && response.data.image) {
-        setUserInfo({ ...userInfo, image: response.data.image });
-        toast.success("Image Updated Successfully.");
+      formData.append("channel-image", file);
+      formData.append("chatId", selectedChatData._id); 
+      try {
+        const response = await apiClient.post(
+          ADD_CHANNEL_IMAGE_ROUTE,
+          formData,
+          {
+            withCredentials: true,
+          }
+        );
+  
+        if (response.status === 200 && response.data.image) {
+          setImage(response.data.image);
+          console.log("Image uploaded successfully");
+        }
+      } catch (error) {
+        console.log("Error uploading image:", error);
       }
+    } else {
+      console.log("No file selected or missing chat ID.");
     }
   };
+  
+
   const handleDeleteImage = async () => {
     try {
       const response = await apiClient.delete(REMOVE_PROFILE_IMAGE_ROUTE, {
         withCredentials: true,
       });
       if (response.status === 200) {
-        setUserInfo({ ...userInfo, image: null });
-        toast.success("Image removed successfully.");
         setImage(null);
+        console.log("Image removed successfully.");
       }
     } catch (error) {
-      console.log(error);
+      console.log("Error deleting image:", error);
     }
   };
 
@@ -136,9 +132,9 @@ const Profile = () => {
                     selectedColor
                   )}`}
                 >
-                  {firstName
-                    ? firstName.split("").shift()
-                    : userInfo.email.split("").shift()}
+                  {selectedChatData.name
+                    ? selectedChatData.name.split("").shift()
+                    : "#"}
                 </div>
               )}
             </Avatar>
@@ -169,46 +165,11 @@ const Profile = () => {
                 placeholder="Email"
                 type="email"
                 disabled
-                value={userInfo.email}
+                value={selectedChatData.name}
                 className="rounded-lg p-6 bg-[#2c2e3b] border-none"
               />
             </div>
 
-            <div className="w-full">
-              <Input
-                placeholder="First Name"
-                type="text"
-                onChange={(e) => setFirstName(e.target.value)}
-                value={firstName}
-                className="rounded-lg p-6 bg-[#2c2e3b] border-none"
-              />
-            </div>
-
-            <div className="w-full">
-              <Input
-                placeholder="Last Name"
-                type="text"
-                onChange={(e) => setLastName(e.target.value)}
-                value={lastName}
-                className="rounded-lg p-6 bg-[#2c2e3b] border-none"
-              />
-            </div>
-            <div className="w-full flex gap-5">
-              {colors.map((color, index) => (
-                <div
-                  className={`${color} h-8 w-8 rounded-full cursor-pointer transition-all duration-300 
-                 ${
-                   selectedColor === index
-                     ? "outline outline-white/50 outline-1"
-                     : ""
-                 }}
-                  
-                `}
-                  key={index}
-                  onClick={() => setSelectedColor(index)}
-                ></div>
-              ))}
-            </div>
           </div>
         </div>
         <div className="w-full">
@@ -223,4 +184,4 @@ const Profile = () => {
     </div>
   );
 };
-export default Profile;
+export default ChannelProfile;

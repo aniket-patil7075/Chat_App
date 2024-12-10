@@ -17,8 +17,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { FiEdit2 } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
+
 
 function ChatHeader() {
+  const navigate =useNavigate();
   const {
     closeChat,
     selectedChatData,
@@ -26,94 +31,100 @@ function ChatHeader() {
     selectedChatType,
     selectedChatMessages,
   } = useAppStore();
-  const [newChannelModal, setNewChannelModal] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
   const [userDetails, setUserDetails] = useState(null);
   const [usernames, setUsernames] = useState({});
   const [adminUsername, setAdminUsername] = useState("");
-  // console.log("Data: ",selectedChatData);
+  const [userImages, setUserImages] = useState({});
 
   useEffect(() => {
     const fetchUserDetails = async () => {
       try {
-        if (!selectedChatData || !selectedChatData._id) {
-          alert("No user selected for fetching details.");
-          return;
-        }
+        if (!selectedChatData || !selectedChatData._id) return;
 
-        if ( !selectedChatData.admin) {
-          console.log("Selected data is not a channel. Skipping fetch.");
-          return;
-        }
+        const newUsernames = { ...usernames };
+        const newUserImages = { ...userImages };
 
-        const newUsernames = { ...usernames }; 
-
-        if (selectedChatData.admin && !adminUsername) {
-          const adminResponse = await apiClient.get(
-            GET_USER_DETAILS_ROUTE.replace(":userId", selectedChatData.admin),
-            { withCredentials: true }
-          );
-          setAdminUsername(adminResponse.data.userDetails.username);
-        }
-
-        
-        for (const memberId of selectedChatData.members) {
-          if (!newUsernames[memberId]) { 
-            const response = await apiClient.get(
-              GET_USER_DETAILS_ROUTE.replace(":userId", memberId),
+        if (selectedChatType === "channel") {
+          // Fetch admin username and image for channels
+          if (selectedChatData.admin && !adminUsername) {
+            const adminResponse = await apiClient.get(
+              GET_USER_DETAILS_ROUTE.replace(":userId", selectedChatData.admin),
               { withCredentials: true }
             );
-            // console.log("Response for Profile pic : ", response)
-            newUsernames[memberId] = response.data.userDetails.username;
+            setAdminUsername(adminResponse.data.userDetails.username);
+            newUserImages[selectedChatData.admin] =
+              adminResponse.data.userDetails.image;
           }
+
+          // Fetch members' usernames and images
+          for (const memberId of selectedChatData.members) {
+            if (!newUsernames[memberId]) {
+              const response = await apiClient.get(
+                GET_USER_DETAILS_ROUTE.replace(":userId", memberId),
+                { withCredentials: true }
+              );
+              console.log(response);
+
+              newUsernames[memberId] = response.data.userDetails.username;
+              newUserImages[memberId] = response.data.userDetails.image;
+            }
+          }
+        } else if (selectedChatType === "contact") {
+          // Fetch user details for contacts
+          const contactResponse = await apiClient.get(
+            GET_USER_DETAILS_ROUTE.replace(
+              ":userId",
+              selectedChatData._id || selectedChatData.id
+            ),
+            { withCredentials: true }
+          );
+          setUserDetails(contactResponse.data.userDetails);
         }
 
-        setUsernames(newUsernames); 
+        setUsernames(newUsernames);
+        setUserImages(newUserImages);
       } catch (error) {
-        console.error({ error });
-        alert("An error occurred while fetching user details.");
+        console.error("Error fetching user details:", error);
       }
     };
     fetchUserDetails();
-  }, [selectedChatData]);
-
-  const handleChannelClick = () => {
-    if (selectedChatType === "channel") {
-      setNewChannelModal(true);
-    }
-  };
+  }, [selectedChatData, selectedChatType]);
 
   const handleDeleteChat = async () => {
     try {
-      const confirmDelete = window.confirm(
-        "Are you sure you want to delete this chat?"
-      );
-      if (!confirmDelete) return;
-      const previousMessages = [...selectedChatMessages];
-      setSelectedChatMessages([]);
-
-      const response = await apiClient.post(
-        DELETE_CHAT_ROUTE,
-        { id: selectedChatData._id },
-        { withCredentials: true }
-      );
-
-      if (response.data.success) {
-        // alert("Chat deleted successfully!");
+      if (window.confirm("Are you sure you want to delete this chat?")) {
+        const previousMessages = [...selectedChatMessages];
         setSelectedChatMessages([]);
-      } else {
-        alert(response.data.message || "Failed to delete chat.");
+
+        const response = await apiClient.post(
+          DELETE_CHAT_ROUTE,
+          { id: selectedChatData._id },
+          { withCredentials: true }
+        );
+
+        if (!response.data.success) {
+          alert(response.data.message || "Failed to delete chat.");
+          setSelectedChatMessages(previousMessages);
+        }
       }
     } catch (error) {
-      console.log({ error });
-      alert("An error occurred while deleting the chat.");
-      setSelectedChatMessages(previousMessages);
+      console.error("Error deleting chat:", error);
     }
   };
 
+  const handleModalOpen = () => {
+    if (selectedChatType === "contact") {
+      console.log("First Name:", selectedChatData.firstName || "N/A");
+      console.log("Last Name:", selectedChatData.lastName || "N/A");
+      console.log("Email:", selectedChatData.email || "N/A");
+    }
+    setModalOpen(true);
+  };
   return (
     <div className="h-[10vh] border-b-2 border-[#2f303b] flex items-center justify-between">
-      <div className="flex gap-5 items-center  w-full justify-between">
-        <div className="flex gap-5 ml-7 items-center justify-center ">
+      <div className="flex gap-5 items-center w-full justify-between">
+        <div className="flex gap-5 ml-7 items-center justify-center">
           <div className="w-12 h-12 relative">
             {selectedChatType === "contact" ? (
               <Avatar className="h-12 w-12 rounded-full overflow-hidden">
@@ -121,17 +132,17 @@ function ChatHeader() {
                   <AvatarImage
                     src={`${HOST}/${selectedChatData.image}`}
                     alt="profile"
-                    className="object-cover w-full h-full bg-black "
+                    className="object-cover w-full h-full bg-black"
                   />
                 ) : (
                   <div
-                    className={`uppercase w-12 h-12  text-lg border-[1px] flex items-center justify-center rounded-full ${getColor(
+                    className={`uppercase w-12 h-12 text-lg border-[1px] flex items-center justify-center rounded-full ${getColor(
                       selectedChatData.color
                     )}`}
                   >
                     {selectedChatData.firstName
-                      ? selectedChatData.firstName.split("").shift()
-                      : selectedChatData.email.split("").shift()}
+                      ? selectedChatData.firstName.charAt(0)
+                      : selectedChatData.email.charAt(0)}
                   </div>
                 )}
               </Avatar>
@@ -141,32 +152,14 @@ function ChatHeader() {
               </div>
             )}
           </div>
-          <div onClick={handleChannelClick} className="cursor-pointer">
+          <div onClick={handleModalOpen} className="cursor-pointer">
             {selectedChatType === "channel" && selectedChatData.name}
-            {selectedChatType === "contact" && selectedChatData.lastName
-              ? `${selectedChatData.firstName} ${selectedChatData.lastName}`
-              : selectedChatData.email}
+            {selectedChatType === "contact"
+              ? selectedChatData.firstName && selectedChatData.lastName
+                ? `${selectedChatData.firstName} ${selectedChatData.lastName}`
+                : selectedChatData.email
+              : null}
           </div>
-          <Dialog open={newChannelModal} onOpenChange={setNewChannelModal}>
-            <DialogContent className="bg-[#181920] border-none text-white w-[400px] h-[300px] flex flex-col">
-              <DialogHeader>
-                <DialogTitle className="">{selectedChatData.name}</DialogTitle>
-                <DialogDescription></DialogDescription>
-              </DialogHeader>
-              <div>
-                
-                <h4>Admin: <span className="text-gray-400">{adminUsername || "Loading..."}</span></h4>
-                <h4 className="  mb-2 text-white">Members :</h4>
-                <ul className="list-disc text-sm text-gray-400 pl-5">
-                  {(selectedChatData.members || []).map((member, index) => (
-                    <li key={index} className="mb-1">
-                      {usernames[member] || "Loading..."}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </DialogContent>
-          </Dialog>
         </div>
 
         <div className="flex items-center justify-center gap-5 mr-5">
@@ -185,6 +178,105 @@ function ChatHeader() {
           </button>
         </div>
       </div>
+
+      <Dialog open={modalOpen} onOpenChange={setModalOpen}>
+        <DialogContent className="bg-[#181920] border-none text-white w-[350px] h-[250px] flex flex-col">
+          <DialogHeader>
+           <div className="flex gap-6">
+           <DialogTitle>
+              {selectedChatType === "channel"
+                ? selectedChatData.name
+                : `${userDetails?.firstName || ""} ${
+                    userDetails?.lastName || ""
+                  }`}
+            </DialogTitle>
+            <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <FiEdit2
+                          className="text-neutral-500 focus:border-none focus:outline-none focus:text-white duration-300 transition-all text-xl font-medium"
+                          onClick={() => navigate("/channelProfile" , { state: { selectedChatData } })}
+                        />
+                      </TooltipTrigger>
+                      <TooltipContent className="bg-[#1c1b1e] border-none text-white">
+                        Edit Profile
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+           </div>
+            <DialogDescription>
+              {selectedChatType === "channel" && (
+                <>
+                  <h4>
+                    Admin:{" "}
+                    <span className="text-gray-400">
+                      {adminUsername || "Loading..."}
+                    </span>
+                  </h4>
+                  <h4 className="mb-2 text-white">Members:</h4>
+                  <ul className="list-disc text-sm text-gray-400 pl-5">
+                    {(selectedChatData.members || []).map((member) => (
+                      <li key={member} className="mb-1 flex items-center gap-2">
+                        <Avatar className="h-6 w-6 rounded-full overflow-hidden">
+                          {userImages[member] ? (
+                            <AvatarImage
+                              src={`${HOST}/${userImages[member]}`}
+                              alt="profile"
+                              className="object-cover w-full h-full bg-black"
+                            />
+                          ) : (
+                            <div
+                              className={`uppercase w-6 h-6 text-xs border-[1px] flex items-center justify-center rounded-full ${getColor(
+                                selectedChatData.color
+                              )}`}
+                            >
+                              {usernames[member]?.charAt(0) || "?"}
+                            </div>
+                          )}
+                        </Avatar>
+                        {usernames[member] || "Loading..."}
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
+              {selectedChatType === "contact" && (
+                <div className="flex flex-col items-center gap-4">
+                  <h3 className="text-white text-xl font-semibold">
+                    Contact Details
+                  </h3>
+                  <Avatar className="h-16 w-16 rounded-full overflow-hidden">
+                    {selectedChatData.image ? (
+                      <AvatarImage
+                        src={`${HOST}/${selectedChatData.image}`}
+                        alt="profile"
+                        className="object-cover w-full h-full"
+                      />
+                    ) : (
+                      <div
+                        className={`uppercase w-16 h-16 text-lg border-[1px] flex items-center justify-center rounded-full bg-gray-500 ${getColor(
+                          selectedChatData.color
+                        )}`}
+                      >
+                        {selectedChatData.firstName?.charAt(0) || "?"}
+                      </div>
+                    )}
+                  </Avatar>
+
+                  <div className="text-center">
+                    <h6 className="text-white text-l font-semibold">
+                      {selectedChatData.firstName} {selectedChatData.lastName}
+                    </h6>
+                    <p className="text-gray-400 text-sm">
+                      {selectedChatData.email}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

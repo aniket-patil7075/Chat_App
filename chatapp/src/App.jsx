@@ -7,6 +7,7 @@ import Profile from "./pages/profile";
 import { useAppStore } from "./store";
 import { apiClient } from "./lib/api-client";
 import { GET_USER_INFO } from "./utils/constants";
+import ChannelProfile from "./pages/chat/components/chat-container/components/channel-profile";
 
 const PrivateRoute = ({ children }) => {
   const { userInfo } = useAppStore();
@@ -78,6 +79,15 @@ function App() {
           element={
             <PrivateRoute>
               <Profile />
+            </PrivateRoute>
+          }
+        />
+        
+        <Route
+          path="/channelProfile"
+          element={
+            <PrivateRoute>
+              <ChannelProfile />
             </PrivateRoute>
           }
         />

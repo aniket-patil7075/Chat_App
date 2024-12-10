@@ -150,13 +150,8 @@ export const addProfileImage =async (request , response, next )=>{
         {new:true,runValidators:true}
     )
        return response.status(200).json({
-        
         image:updatedUser.iamge,
-       
        })
-
-   
-
     }catch(error){
         console.log({error})
         return response.status(500).send("Internal server error")
