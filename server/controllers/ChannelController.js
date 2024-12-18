@@ -99,72 +99,28 @@ export const getChannelMessages = async (request, response, next) => {
 
 // }
 
- // Adjust the path based on your project structure
-import multer from "multer";
-import path from "path";
-
-// Set up Multer for image upload
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/"); // Ensure this folder exists or create it dynamically
-  },
-  filename: (req, file, cb) => {
-    cb(null, `${Date.now()}-${file.originalname}`);
-  },
-});
-
-const upload = multer({
-  storage,
-  fileFilter: (req, file, cb) => {
-    const fileTypes = /jpeg|jpg|png|svg|webp/;
-    const extname = fileTypes.test(path.extname(file.originalname).toLowerCase());
-    const mimeType = fileTypes.test(file.mimetype);
-
-    if (extname && mimeType) {
-      cb(null, true);
-    } else {
-      cb(new Error("Only images are allowed"));
-    }
-  },
-}).single("channel-image"); // Field name in the request
-
-// Add Image Controller
-export const addChannelImage = async (req, res) => {
-  upload(req, res, async (err) => {
-    if (err) {
-      return res.status(400).json({ error: err.message });
-    }
-
-    const { chatId } = req.body;
-    if (!chatId) {
-      return res.status(400).json({ error: "Chat ID is required." });
-    }
-
+export const uploadChannelImage = async (req, res) => {
+  try {
+    const { channelId } = req.params;
     if (!req.file) {
-      return res.status(400).json({ error: "No image file provided." });
+      return res.status(400).json({ message: 'No file uploaded' });
     }
 
-    try {
-      const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
-
-      // Update the channel with the image URL
-      const updatedChannel = await Channel.findByIdAndUpdate(
-        chatId,
-        { image: imageUrl },
-        { new: true, runValidators: true }
-      );
-
-      if (!updatedChannel) {
-        return res.status(404).json({ error: "Channel not found." });
-      }
-
-      res.status(200).json({
-        message: "Image uploaded successfully.",
-        image: updatedChannel.image,
-      });
-    } catch (error) {
-      console.error("Error updating channel image:", error);
-      res.status(500).json({ error: "Server error. Please try again later." });
+    const channel = await Channel.findById(channelId);
+    if (!channel) {
+      return res.status(404).json({ message: 'Channel not found' });
     }
-  });
+
+    channel.image = req.file.path;
+    await channel.save();
+
+    return res.status(200).json({
+      success: true,
+      message: 'Image uploaded successfully',
+      data: { imagePath: req.file.path },
+    });
+  } catch (error) {
+    console.error('Error uploading channel image:', error);
+    return res.status(500).json({ message: 'Internal server error', error });
+  }
 };

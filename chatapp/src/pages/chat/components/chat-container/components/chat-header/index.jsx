@@ -114,11 +114,11 @@ function ChatHeader() {
   };
 
   const handleModalOpen = () => {
-    if (selectedChatType === "contact") {
-      console.log("First Name:", selectedChatData.firstName || "N/A");
-      console.log("Last Name:", selectedChatData.lastName || "N/A");
-      console.log("Email:", selectedChatData.email || "N/A");
-    }
+    // if (selectedChatType === "contact") {
+    //   console.log("First Name:", selectedChatData.firstName || "N/A");
+    //   console.log("Last Name:", selectedChatData.lastName || "N/A");
+    //   console.log("Email:", selectedChatData.email || "N/A");
+    // }
     setModalOpen(true);
   };
   return (
@@ -148,7 +148,8 @@ function ChatHeader() {
               </Avatar>
             ) : (
               <div className="bg-[#ffffff22] h-10 w-10 flex items-center justify-center rounded-full">
-                #
+                {selectedChatData.name ? selectedChatData.name.split("").shift() : "#"}
+                
               </div>
             )}
           </div>
