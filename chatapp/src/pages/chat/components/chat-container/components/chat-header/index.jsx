@@ -23,7 +23,7 @@ import { useNavigate } from "react-router-dom";
 
 
 function ChatHeader() {
-  const navigate =useNavigate();
+  const navigate = useNavigate();
   const {
     closeChat,
     selectedChatData,
@@ -94,24 +94,33 @@ function ChatHeader() {
   const handleDeleteChat = async () => {
     try {
       if (window.confirm("Are you sure you want to delete this chat?")) {
+        // Optimistically update the UI
         const previousMessages = [...selectedChatMessages];
         setSelectedChatMessages([]);
-
+  
+        // Send the delete request to the backend
         const response = await apiClient.post(
           DELETE_CHAT_ROUTE,
           { id: selectedChatData._id },
           { withCredentials: true }
         );
-
-        if (!response.data.success) {
+  
+        if (response.data.success) {
+          alert("Chat deleted successfully!");
+        } else {
+          // If the backend fails, restore previous messages
           alert(response.data.message || "Failed to delete chat.");
           setSelectedChatMessages(previousMessages);
         }
       }
     } catch (error) {
       console.error("Error deleting chat:", error);
+      // Restore the previous messages in case of an error
+      setSelectedChatMessages(previousMessages);
+      alert("An error occurred while trying to delete the chat.");
     }
   };
+  
 
   const handleModalOpen = () => {
     // if (selectedChatType === "contact") {
@@ -149,7 +158,7 @@ function ChatHeader() {
             ) : (
               <div className="bg-[#ffffff22] h-10 w-10 flex items-center justify-center rounded-full">
                 {selectedChatData.name ? selectedChatData.name.split("").shift() : "#"}
-                
+
               </div>
             )}
           </div>
@@ -183,28 +192,33 @@ function ChatHeader() {
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
         <DialogContent className="bg-[#181920] border-none text-white w-[350px] h-[250px] flex flex-col">
           <DialogHeader>
-           <div className="flex gap-6">
-           <DialogTitle>
-              {selectedChatType === "channel"
-                ? selectedChatData.name
-                : `${userDetails?.firstName || ""} ${
-                    userDetails?.lastName || ""
+            <div className="flex gap-6">
+              <DialogTitle>
+                {selectedChatType === "channel"
+                  ? selectedChatData.name
+                  : `${userDetails?.firstName || ""} ${userDetails?.lastName || ""
                   }`}
-            </DialogTitle>
-            <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <FiEdit2
-                          className="text-neutral-500 focus:border-none focus:outline-none focus:text-white duration-300 transition-all text-xl font-medium"
-                          onClick={() => navigate("/channelProfile" , { state: { selectedChatData } })}
-                        />
-                      </TooltipTrigger>
-                      <TooltipContent className="bg-[#1c1b1e] border-none text-white">
-                        Edit Profile
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-           </div>
+              </DialogTitle>
+              <TooltipProvider>
+              {selectedChatType === "channel" && (
+                <Tooltip>
+                  <TooltipTrigger>
+                    
+                      <FiEdit2
+                        className="text-neutral-500 focus:border-none focus:outline-none focus:text-white duration-300 transition-all text-xl font-medium cursor-pointer"
+                        onClick={() =>
+                          navigate("/channelProfile", { state: { selectedChatData } })
+                        }
+                      />
+                    
+                  </TooltipTrigger>
+                  <TooltipContent className="bg-[#1c1b1e] border-none text-white">
+                    Edit Profile
+                  </TooltipContent>
+                </Tooltip>
+                )}
+              </TooltipProvider>
+            </div>
             <DialogDescription>
               {selectedChatType === "channel" && (
                 <>

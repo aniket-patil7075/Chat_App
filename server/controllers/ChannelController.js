@@ -2,6 +2,8 @@ import mongoose from "mongoose";
 import Channel from "../models/ChannelModal.js";
 import User from "../models/UserModel.js";
 import {renameSync,unlinkSync} from "fs"
+import path from "path";
+import fs from "fs";
 
 
 export const createChannel =async (request , response, next )=>{
@@ -101,26 +103,65 @@ export const getChannelMessages = async (request, response, next) => {
 
 export const uploadChannelImage = async (req, res) => {
   try {
-    const { channelId } = req.params;
+    const { id } = req.params; // Match :id in the route
     if (!req.file) {
-      return res.status(400).json({ message: 'No file uploaded' });
+      return res.status(400).json({ message: "No file uploaded" });
     }
 
-    const channel = await Channel.findById(channelId);
+    const channel = await Channel.findById(id);
     if (!channel) {
-      return res.status(404).json({ message: 'Channel not found' });
+      return res.status(404).json({ message: "Channel not found" });
     }
 
-    channel.image = req.file.path;
+    // Extract the original file extension
+    const fileExtension = path.extname(req.file.originalname);
+
+    // Generate a new file name with the same extension
+    const newFileName = `${req.file.filename}${fileExtension}`;
+    const newFilePath = path.join(path.dirname(req.file.path), newFileName);
+
+    // Rename the file to include the correct extension
+    fs.renameSync(req.file.path, newFilePath);
+
+    // Update the channel's image path
+    channel.image = newFilePath;
     await channel.save();
 
     return res.status(200).json({
       success: true,
-      message: 'Image uploaded successfully',
-      data: { imagePath: req.file.path },
+      message: "Image uploaded successfully",
+      data: { imagePath: newFilePath },
     });
   } catch (error) {
-    console.error('Error uploading channel image:', error);
-    return res.status(500).json({ message: 'Internal server error', error });
+    console.error("Error uploading channel image:", error);
+    res.status(500).json({ message: "Internal server error", error });
   }
 };
+
+export const getChannelImage = async (req, res) => {
+  try {
+    const { id: channelId } = req.params;
+
+    // Find the channel by ID
+    const channel = await Channel.findById(channelId);
+    if (!channel) {
+      return res.status(404).json({ message: "Channel not found" });
+    }
+
+    // Check if the channel has an image
+    if (!channel.image) {
+      return res.status(404).json({ message: "No image available for this channel" });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Image retrieved successfully",
+      imagePath: channel.image,
+    });
+  } catch (error) {
+    console.error("Error fetching channel image:", error);
+    res.status(500).json({ message: "Internal server error", error });
+  }
+};
+
+

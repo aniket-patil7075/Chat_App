@@ -24,7 +24,7 @@ import { useLocation } from "react-router-dom";
 const ChannelProfile = () => {
   const location = useLocation();
   const { selectedChatData } = location.state || {};
-  console.log("selectedchatdata : ",selectedChatData);
+  console.log("selectedchatdata : ", selectedChatData);
 
   const navigate = useNavigate();
   const [image, setImage] = useState(null);
@@ -38,97 +38,62 @@ const ChannelProfile = () => {
       navigate("/chat");
   };
 
-  // const handleFileInputClick = () => {
-  //   fileInputRef.current.click();
-  // };
+  const handleFileInputClick = () => {
+    fileInputRef.current.click();
+  };
 
-  // const handleImageChange = async (event) => {
-  //   const file = event.target.files[0];
-  //   if (!file) {
-  //     console.log("No file selected.");
-  //     return;
-  //   }
-  
-  //   if (!selectedChatData?._id) {
-  //     console.log("Chat ID is missing.");
-  //     return;
-  //   }
-  //   if (file && selectedChatData?._id) { 
-  //     const formData = new FormData();
-  //     formData.append("channel-image", file);
-  //     formData.append("chatId", selectedChatData._id); 
-  //     try {
-  //       const response = await apiClient.post(
-  //         ADD_CHANNEL_IMAGE_ROUTE,
-  //         formData,
-  //         {
-  //           withCredentials: true,
-  //         }
-  //       );
-  
-  //       if (response.status === 200 && response.data.image) {
-  //         setImage(response.data.image);
-  //         console.log("Image uploaded successfully");
-  //       }
-  //     } catch (error) {
-  //       console.log("Error uploading image:", error);
-  //     }
-  //   } else {
-  //     console.log("No file selected or missing chat ID.");
-  //   }
-  // };
-  
-
-  // const handleDeleteImage = async () => {
-  //   try {
-  //     const response = await apiClient.delete(REMOVE_PROFILE_IMAGE_ROUTE, {
-  //       withCredentials: true,
-  //     });
-  //     if (response.status === 200) {
-  //       setImage(null);
-  //       console.log("Image removed successfully.");
-  //     }
-  //   } catch (error) {
-  //     console.log("Error deleting image:", error);
-  //   }
-  // };
+  const handleDeleteImage = async () => {
+    try {
+      const response = await apiClient.delete(REMOVE_PROFILE_IMAGE_ROUTE, {
+        withCredentials: true,
+      });
+      if (response.status === 200) {
+        setImage(null);
+        toast.success("Image removed successfully.");
+      }
+    } catch (error) {
+      console.log("Error deleting image:", error);
+      toast.error("Failed to remove image.");
+    }
+  };
 
   const handleFileChange = (e) => {
     setImage(e.target.files[0]);
   };
 
-  const API_BASE_URL = "http://localhost:5000";
+  const API_BASE_URL = "http://localhost:4500";
 
   const handleUpload = async () => {
     if (!image) {
-      setMessage('Please select an image to upload');
+      setMessage("Please select an image to upload");
+      toast.error("Please select an image to upload.");
       return;
     }
-  
+
     const formData = new FormData();
-    formData.append('image', image);
-  
+    formData.append("image", image);
+
     try {
       const uploadUrl = `${API_BASE_URL}/api/channels/${selectedChatData._id}/upload`;
-      console.log('Uploading to:', uploadUrl); // Verify the URL
+      console.log("Uploading to:", uploadUrl); // Verify the URL
       const response = await axios.post(uploadUrl, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+        headers: { "Content-Type": "multipart/form-data" },
       });
       setMessage(response.data.message);
+      toast.success("Image uploaded successfully.");
+      handleNavigate();
     } catch (error) {
       if (error.response) {
-        console.error('Response error:', error.response.data);
+        console.error("Response error:", error.response.data);
       } else if (error.request) {
-        console.error('Request error:', error.request);
+        console.error("Request error:", error.request);
       } else {
-        console.error('Error:', error.message);
+        console.error("Error:", error.message);
       }
-      setMessage('Failed to upload image');
+      setMessage("Failed to upload image");
+      toast.error("Failed to upload image.");
     }
   };
-  
-
-  
 
   return (
     <div className="bg-[#1b1c24] h-[100vh] flex items-center justify-center flex-col gap-10">
@@ -136,7 +101,7 @@ const ChannelProfile = () => {
         <div onClick={handleNavigate}>
           <IoArrowBack className="text-4xl lg:text-6xl text-white/90 cursor-pointer" />
         </div>
-        {/* <div className="grid grid-cols-2">
+        <div className="grid grid-cols-2">
           <div
             className="h-32 w-32 md:w-48 md:h-48 relative flex items-center justify-center"
             onMouseEnter={() => setHovered(true)}
@@ -177,9 +142,9 @@ const ChannelProfile = () => {
               type="file"
               ref={fileInputRef}
               className="hidden "
-              onChange={handleImageChange}
               name="profile_image "
               accept=".png ,.jpg ,.jpeg .,svg ,.webp "
+              onChange={handleFileChange}
             />
           </div>
           <div className="flex min-w-32 md:min-w-64  flex-col gap-5 text-white items-center justify-center">
@@ -192,36 +157,17 @@ const ChannelProfile = () => {
                 className="rounded-lg p-6 bg-[#2c2e3b] border-none"
               />
             </div>
-
           </div>
         </div>
         <div className="w-full">
           <Button
             className="h-16 w-full bg-purple-700 hover:bg-purple-900 transition-all duration-300"
-            onClick={svaeChanges}
+            onClick={handleUpload}
           >
             Save Changes
           </Button>
-        </div> */}
-        <div className="text-white">
-      <h2>Channel Profile</h2>
-      {selectedChatData ? (
-        <div>
-          <p>Channel Name: {selectedChatData.name}</p>
-          <p>Channel ID: {selectedChatData._id}</p>
-
-          <div>
-            <label htmlFor="channelImage">Upload Channel Image:</label>
-            {/* <input type="file" id="channelImage" onChange={handleFileChange} /> */}
-            <button onClick={handleUpload}>Upload</button>
-          </div>
-
-          {message && <p>{message}</p>}
         </div>
-      ) : (
-        <p>No channel data available</p>
-      )}
-    </div>
+        
       </div>
     </div>
   );

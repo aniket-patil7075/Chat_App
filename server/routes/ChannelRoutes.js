@@ -2,6 +2,7 @@ import { Router } from "express";
 import { verifyToken } from "../middlewares/AuthMiddleware.js";
 import {
   createChannel,
+  getChannelImage,
   getChannelMessages,
   getUserChannel,
   uploadChannelImage,
@@ -31,6 +32,21 @@ channelRoutes.get(
 //   },
 //   addChannelImage
 // );
-channelRoutes.post('/:id/upload', upload.single('image'), uploadChannelImage);
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/"); // Folder where images will be stored
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  },
+});
+channelRoutes.post("/:id/upload", (req, res, next) => {
+  console.log("Request received for upload:", req.params.id);
+  next();
+}, upload.single("image"), uploadChannelImage);
+
+channelRoutes.get("/api/channels/:id/image", getChannelImage);
+
+
 
 export default channelRoutes;

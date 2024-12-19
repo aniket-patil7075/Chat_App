@@ -23,6 +23,51 @@ const setupSocket=(server)=>{
         }
         
     };
+
+    const deleteMessage = async (messageId) => {
+        try {
+          // Find the message
+          const message = await Message.findById(messageId);
+    
+          if (!message) {
+            console.error("Message not found for deletion.");
+            return;
+          }
+    
+          // Delete the message from the database
+          await Message.findByIdAndDelete(messageId);
+    
+          if (message.recipient) {
+            // Private message deletion
+            const senderSocketId = userSocketMap.get(message.sender.toString());
+            const recipientSocketId = userSocketMap.get(message.recipient.toString());
+    
+            // Notify sender and recipient about the deletion
+            if (senderSocketId) {
+              io.to(senderSocketId).emit("messageDeleted", messageId);
+            }
+            if (recipientSocketId) {
+              io.to(recipientSocketId).emit("messageDeleted", messageId);
+            }
+          } else if (message.channelId) {
+            // Channel message deletion
+            const channel = await Channel.findById(message.channelId).populate("members");
+    
+            if (channel && channel.members) {
+              // Notify all channel members about the deletion
+              channel.members.forEach((member) => {
+                const memberSocketId = userSocketMap.get(member._id.toString());
+                if (memberSocketId) {
+                  io.to(memberSocketId).emit("channelMessageDeleted", messageId);
+                }
+              });
+            }
+          }
+        } catch (error) {
+          console.error("Error deleting message:", error);
+        }
+      };
+
     const sendMessage=async (message)=>{
         const sendScoketId=userSocketMap.get(message.sender);
         const recipientSocketId=userSocketMap.get(message.recipient);

@@ -129,11 +129,11 @@ function NewDM() {
           )}
           {searchedConatct.length <= 0 && (
             <div className="flex-1  md:flex mt-5 md:mt-0  flex-col justify-center items-center  duration-1000 transition-all">
-              <div className="absolute top-[55%] left-[50%] transform -translate-x-1/2 -translate-y-full z-10">
+              <div className="absolute top-[60%] left-[50%] transform -translate-x-1/2 -translate-y-full z-10">
                 <TiMessages className="text-[#6ea8f8] text-6xl animate-bounce" />
               </div>
               <div
-                className="text-opacity-80 text-white flex flex-col gap-5 items-center mt-5 lg:text-2xl 
+                className="text-opacity-80 text-white flex flex-col gap-5 items-center mt-5 sm:mt-16 sm:pt-5 lg:text-2xl 
               text-xl transition-all duration-300 text-center"
               >
                 <h2 className="poppins-medium">
