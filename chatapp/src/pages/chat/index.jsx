@@ -23,8 +23,7 @@ export const Chat = () => {
         toast("Please setup profile to continue.");
         navigate("/profile");
       }
-    },
-    { userInfo, navigate }
+    },[userInfo, navigate]
   );
   return (
     <div className="flex h-[100vh] text-white overflow-hidden">

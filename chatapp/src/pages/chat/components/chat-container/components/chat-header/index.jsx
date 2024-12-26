@@ -37,6 +37,8 @@ function ChatHeader() {
   const [adminUsername, setAdminUsername] = useState("");
   const [userImages, setUserImages] = useState({});
 
+  // console.log("SelectedChat Data : ", selectedChatData)
+
   useEffect(() => {
     const fetchUserDetails = async () => {
       try {
@@ -52,6 +54,7 @@ function ChatHeader() {
               GET_USER_DETAILS_ROUTE.replace(":userId", selectedChatData.admin),
               { withCredentials: true }
             );
+            // console.log("Chat Header Response : ",adminResponse)
             setAdminUsername(adminResponse.data.userDetails.username);
             newUserImages[selectedChatData.admin] =
               adminResponse.data.userDetails.image;
@@ -64,7 +67,7 @@ function ChatHeader() {
                 GET_USER_DETAILS_ROUTE.replace(":userId", memberId),
                 { withCredentials: true }
               );
-              console.log(response);
+              // console.log(response);
 
               newUsernames[memberId] = response.data.userDetails.username;
               newUserImages[memberId] = response.data.userDetails.image;
@@ -97,14 +100,14 @@ function ChatHeader() {
         // Optimistically update the UI
         const previousMessages = [...selectedChatMessages];
         setSelectedChatMessages([]);
-  
+
         // Send the delete request to the backend
         const response = await apiClient.post(
           DELETE_CHAT_ROUTE,
           { id: selectedChatData._id },
           { withCredentials: true }
         );
-  
+
         if (response.data.success) {
           alert("Chat deleted successfully!");
         } else {
@@ -120,7 +123,7 @@ function ChatHeader() {
       alert("An error occurred while trying to delete the chat.");
     }
   };
-  
+
 
   const handleModalOpen = () => {
     // if (selectedChatType === "contact") {
@@ -156,11 +159,29 @@ function ChatHeader() {
                 )}
               </Avatar>
             ) : (
-              <div className="bg-[#ffffff22] h-10 w-10 flex items-center justify-center rounded-full">
-                {selectedChatData.name ? selectedChatData.name.split("").shift() : "#"}
-
+              <div className="bg-[#ffffff22] h-12 w-12 flex items-center justify-center rounded-full">
+                <Avatar className="h-12 w-12 rounded-full overflow-hidden">
+                  {selectedChatData.image ? (
+                    <AvatarImage
+                      src={`${HOST}/${selectedChatData.image}`}
+                      alt="profile"
+                      className="object-cover w-full h-full bg-black"
+                    />
+                  ) : (
+                    <div
+                      className={`uppercase w-12 h-12 text-lg border-[1px] flex items-center justify-center rounded-full ${getColor(
+                        selectedChatData.color
+                      )}`}
+                    >
+                      {selectedChatData.firstName
+                        ? selectedChatData.firstName.charAt(0)
+                        : selectedChatData.email.charAt(0)}
+                    </div>
+                  )}
+                </Avatar>
               </div>
             )}
+
           </div>
           <div onClick={handleModalOpen} className="cursor-pointer">
             {selectedChatType === "channel" && selectedChatData.name}
@@ -200,26 +221,43 @@ function ChatHeader() {
                   }`}
               </DialogTitle>
               <TooltipProvider>
-              {selectedChatType === "channel" && (
-                <Tooltip>
-                  <TooltipTrigger>
-                    
+                {selectedChatType === "channel" && (
+                  <Tooltip>
+                    <TooltipTrigger>
+
                       <FiEdit2
                         className="text-neutral-500 focus:border-none focus:outline-none focus:text-white duration-300 transition-all text-xl font-medium cursor-pointer"
                         onClick={() =>
                           navigate("/channelProfile", { state: { selectedChatData } })
                         }
                       />
-                    
-                  </TooltipTrigger>
-                  <TooltipContent className="bg-[#1c1b1e] border-none text-white">
-                    Edit Profile
-                  </TooltipContent>
-                </Tooltip>
+
+                    </TooltipTrigger>
+                    <TooltipContent className="bg-[#1c1b1e] border-none text-white">
+                      Edit Profile
+                    </TooltipContent>
+                  </Tooltip>
                 )}
               </TooltipProvider>
             </div>
             <DialogDescription>
+              <Avatar className="h-16 w-16 rounded-full overflow-hidden">
+                {selectedChatData.image ? (
+                  <AvatarImage
+                    src={`${HOST}/${selectedChatData.image}`}
+                    alt="profile"
+                    className="object-cover w-full h-full"
+                  />
+                ) : (
+                  <div
+                    className={`uppercase w-16 h-16 text-lg border-[1px] flex items-center justify-center rounded-full bg-gray-500 ${getColor(
+                      selectedChatData.color
+                    )}`}
+                  >
+                    {selectedChatData.firstName?.charAt(0) || "?"}
+                  </div>
+                )}
+              </Avatar>
               {selectedChatType === "channel" && (
                 <>
                   <h4>

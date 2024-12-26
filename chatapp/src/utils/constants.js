@@ -19,6 +19,7 @@ export const MESSAGES_ROUTES="api/messages";
 export const GET_ALL_MESSAGES_ROUTE=`${MESSAGES_ROUTES}/get-messages`;
 export const UPLOAD_FILE_ROUTE=`${MESSAGES_ROUTES}/upload-file`;
 export const DELETE_CHAT_ROUTE = `${MESSAGES_ROUTES}/delete-messages`
+export const DELETE_ONE_MESSAGE_ROUTE=`${MESSAGES_ROUTES}/delete-msg`
 
 export const   CHANNEL_ROUTES='api/channel';
 export const CREATE_CHANNEL_ROUTE=`${CHANNEL_ROUTES}/create-channel`;

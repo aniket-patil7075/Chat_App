@@ -1,6 +1,7 @@
 import { apiClient } from "@/lib/api-client";
 import { useAppStore } from "@/store";
 import {
+  DELETE_ONE_MESSAGE_ROUTE,
   GET_ALL_CONTACTS_ROUTES,
   GET_ALL_MESSAGES_ROUTE,
   GET_CHANNEL_MESSAGES,
@@ -13,6 +14,7 @@ import { IoMdArrowRoundDown } from "react-icons/io";
 import { IoCloseSharp } from "react-icons/io5";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getColor } from "@/lib/utils";
+import { FaTrash } from "react-icons/fa";
 
 function MessageContainer() {
   const scrollRef = useRef();
@@ -28,6 +30,7 @@ function MessageContainer() {
 
   const [showImage, setShowImage] = useState(false);
   const [imageURL, setImageURL] = useState(null);
+  const [messageToDelete, setMessageToDelete] = useState(null);
 
   useEffect(() => {
     const getMessages = async () => {
@@ -44,6 +47,9 @@ function MessageContainer() {
         console.log({ error });
       }
     };
+
+
+
     const getChannelMEssages = async () => {
       try {
         const response = await apiClient.get(
@@ -127,30 +133,57 @@ function MessageContainer() {
     setFileDownloadProgress(0);
   };
 
+  const messageRef = useRef(null);
+
+  
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (messageRef.current && !messageRef.current.contains(event.target)) {
+        setMessageToDelete(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   const renderDMMessages = (message) => (
     <div
-      className={`${
-        message.sender === selectedChatData._id ? "text-left" : "text-right"
-      }`}
+    ref={messageRef}
+      className={`${message.sender === selectedChatData._id ? "text-left" : "text-right"
+        }`}
     >
       {message.messageType === "text" && (
         <div
-          className={`${
-            message.sender !== selectedChatData._id
+          className={`${message.sender !== selectedChatData._id
               ? "bg-[#8417ff]/5 text-[#6ea8f8]/90 border-[#6ea8f8]/50"
               : "bg-[#2a2b33]/5 text-white/80 border-[#ffffff]/20"
-          } border inline-block p-4 rounded my-1 max-w-[50%] break-words`}
+            } border inline-block p-4 rounded my-1 max-w-[50%] break-words`}
+          style={{ cursor: 'pointer' }}
+          onClick={() => handleMessageClick(message._id)}
         >
           {message.content}
         </div>
       )}
+      {messageToDelete === message._id && (
+        <div className="message-options">
+          <button
+            onClick={() => handleDeleteMessage(message._id)}
+            className="delete-button"
+          >
+            <FaTrash />
+          </button>
+        </div>
+      )}
       {message.messageType == "file" && (
         <div
-          className={`${
-            message.sender !== selectedChatData._id
+          className={`${message.sender !== selectedChatData._id
               ? "bg-[#8417ff]/5 text-[#6ea8f8]/90 border-[#6ea8f8]/50"
               : "bg-[#2a2b33]/5 text-white/80 border-[#ffffff]/20"
-          } border inline-block p-4 rounded my-1 max-w-[50%] break-words`}
+            } border inline-block p-4 rounded my-1 max-w-[50%] break-words`}
         >
           {checkIfImage(message.fileUrl) ? (
             <div
@@ -197,11 +230,10 @@ function MessageContainer() {
       >
         {message.messageType === "text" && (
           <div
-            className={`${
-              message.sender._id === userInfo.id
+            className={`${message.sender._id === userInfo.id
                 ? "bg-[#8417ff]/5 text-[#6ea8f8]/90 border-[#6ea8f8]/50"
                 : "bg-[#2a2b33]/5 text-white/80 border-[#ffffff]/20"
-            } border inline-block p-4 rounded my-1 max-w-[50%] break-words ml-9`}
+              } border inline-block p-4 rounded my-1 max-w-[50%] break-words ml-9`}
           >
             {message.content}
           </div>
@@ -209,11 +241,10 @@ function MessageContainer() {
 
         {message.messageType == "file" && (
           <div
-            className={`${
-              message.sender._id === userInfo._id
+            className={`${message.sender._id === userInfo._id
                 ? "bg-[#8417ff]/5 text-[#6ea8f8]/90 border-[#6ea8f8]/50"
                 : "bg-[#2a2b33]/5 text-white/80 border-[#ffffff]/20"
-            } border inline-block p-4 rounded my-1 max-w-[50%] break-words`}
+              } border inline-block p-4 rounded my-1 max-w-[50%] break-words`}
           >
             {checkIfImage(message.fileUrl) ? (
               <div
@@ -280,6 +311,35 @@ function MessageContainer() {
         )}
       </div>
     );
+  };
+
+  const handleMessageClick = (messageId) => {
+    // console.log("click on message");
+
+    setMessageToDelete(messageId);
+  };
+
+  const handleDeleteMessage = async (messageId) => {
+    try {
+      const previousMessages = [...selectedChatMessages];
+      const updatedMessages = selectedChatMessages.filter(
+        (message) => message._id !== messageId
+      );
+      setSelectedChatMessages(updatedMessages);
+
+      const response = await apiClient.post(
+        `${DELETE_ONE_MESSAGE_ROUTE}`,
+        { messageId },
+        { withCredentials: true }
+      );
+
+      if (!response.data.success) {
+        alert(response.data.message || "Failed to delete the message.");
+        setSelectedChatMessages(previousMessages);
+      }
+    } catch (error) {
+      console.error("Error deleting message:", error);
+    }
   };
 
   return (
