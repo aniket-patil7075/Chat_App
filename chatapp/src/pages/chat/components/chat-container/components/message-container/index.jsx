@@ -335,6 +335,15 @@ function MessageContainer() {
         console.log(response.data.message);
         // alert("Message deleted successfully...!")
         toast.success("Message deleted successfully...!");
+
+        // const previousMessages = [...selectedChatMessages];
+        const updatedMessages = selectedChatMessages.filter(
+          (message) => message._id !== messageId
+        );
+        setSelectedChatMessages(updatedMessages);
+
+        
+
     } catch (error) {
         console.error("Error deleting the message:", error.response.data.error || error.message);
     }
