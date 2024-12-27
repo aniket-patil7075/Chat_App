@@ -173,3 +173,26 @@ const ChannelProfile = () => {
   );
 };
 export default ChannelProfile;
+
+//  const handleDeleteMessage = async (messageId) => {
+//     try {
+//       const previousMessages = [...selectedChatMessages];
+//       const updatedMessages = selectedChatMessages.filter(
+//         (message) => message._id !== messageId
+//       );
+//       setSelectedChatMessages(updatedMessages);
+
+//       const response = await apiClient.post(
+//         `${DELETE_ONE_MESSAGE_ROUTE}`,
+//         { messageId },
+//         { withCredentials: true }
+//       );
+
+//       if (!response.data.success) {
+//         alert(response.data.message || "Failed to delete the message.");
+//         setSelectedChatMessages(previousMessages);
+//       }
+//     } catch (error) {
+//       console.error("Error deleting message:", error);
+//     }
+//   };

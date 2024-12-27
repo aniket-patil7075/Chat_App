@@ -31,6 +31,10 @@ const messagesSchema=new mongoose.Schema({
         type:Date,
         default:Date.now,
     },
+    isDeletedFor: {
+        type: [mongoose.Schema.Types.ObjectId], // Array of user IDs for whom the message is deleted
+        default: [],
+    },
 });
 
 const Message =mongoose.model("Message",messagesSchema);

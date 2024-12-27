@@ -15,7 +15,8 @@ export const getMessages =async (request , response, next )=>{
                 {sender:user1,recipient:user2},
                 {sender:user2,recipient:user1},
             ],
-         }).sort({timestamp:1});
+            isDeletedFor: { $ne: user1 }
+         }).sort({timestamp:1})
 
        return response.status(200).json({messages});
 
@@ -97,3 +98,33 @@ export const deleteChatMessages = async (request, response, next) => {
       res.status(500).json({ success: false, message: "Failed to delete message." });
     }
   };
+
+
+  export const deleteMessageForUser = async (req, res) => {
+    console.log("Request body:", req.body); 
+
+    const { id } = req.params; 
+    const { userId } = req.body; 
+
+    if (!userId) {
+        return res.status(400).json({ error: "User ID is required." });
+    }
+
+    try {
+        const message = await Message.findById(id);
+
+        if (!message) {
+            return res.status(404).json({ error: "Message not found." });
+        }
+
+        
+        if (!message.isDeletedFor.includes(userId)) {
+            message.isDeletedFor.push(userId);
+            await message.save();
+        }
+
+        res.status(200).json({ message: "Message marked as deleted for the user." });
+    } catch (error) {
+        res.status(500).json({ error: "An error occurred while deleting the message." });
+    }
+};

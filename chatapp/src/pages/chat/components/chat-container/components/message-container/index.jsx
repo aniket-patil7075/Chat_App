@@ -2,6 +2,7 @@ import { apiClient } from "@/lib/api-client";
 import { useAppStore } from "@/store";
 import {
   DELETE_ONE_MESSAGE_ROUTE,
+  DELETE_USER_MESSAGE,
   GET_ALL_CONTACTS_ROUTES,
   GET_ALL_MESSAGES_ROUTE,
   GET_CHANNEL_MESSAGES,
@@ -15,6 +16,7 @@ import { IoCloseSharp } from "react-icons/io5";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getColor } from "@/lib/utils";
 import { FaTrash } from "react-icons/fa";
+import { toast } from "sonner";
 
 function MessageContainer() {
   const scrollRef = useRef();
@@ -31,6 +33,10 @@ function MessageContainer() {
   const [showImage, setShowImage] = useState(false);
   const [imageURL, setImageURL] = useState(null);
   const [messageToDelete, setMessageToDelete] = useState(null);
+
+  // console.log("User Id : ", userInfo.id)
+  const userId = userInfo.id
+  // console.log("User ID : ", userId)
 
   useEffect(() => {
     const getMessages = async () => {
@@ -103,7 +109,7 @@ function MessageContainer() {
               {moment(message.timestamp).format("LL")}
             </div>
           )}
-          {selectedChatType === "contact" && renderDMMessages(message)}
+          {selectedChatType === "contact" && renderDMMessages(message , userInfo.id)}
           {selectedChatType === "channel" && renderChannelMessage(message)}
         </div>
       );
@@ -133,26 +139,27 @@ function MessageContainer() {
     setFileDownloadProgress(0);
   };
 
-  const messageRef = useRef(null);
+  // const messageRef = useRef(null);
 
   
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (messageRef.current && !messageRef.current.contains(event.target)) {
-        setMessageToDelete(null);
-      }
-    };
+  // useEffect(() => {
+  //   const handleClickOutside = (event) => {
+  //     if (messageRef.current && !messageRef.current.contains(event.target)) {
+  //       setMessageToDelete(null);
+  //     }
+  //   };
 
-    document.addEventListener("mousedown", handleClickOutside);
+  //   document.addEventListener("mousedown", handleClickOutside);
 
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
+  //   return () => {
+  //     document.removeEventListener("mousedown", handleClickOutside);
+  //   };
+  // }, []);
 
-  const renderDMMessages = (message) => (
+  const renderDMMessages = (message,userId) => (
+
     <div
-    ref={messageRef}
+    // ref={messageRef}
       className={`${message.sender === selectedChatData._id ? "text-left" : "text-right"
         }`}
     >
@@ -164,6 +171,7 @@ function MessageContainer() {
             } border inline-block p-4 rounded my-1 max-w-[50%] break-words`}
           style={{ cursor: 'pointer' }}
           onClick={() => handleMessageClick(message._id)}
+
         >
           {message.content}
         </div>
@@ -171,7 +179,9 @@ function MessageContainer() {
       {messageToDelete === message._id && (
         <div className="message-options">
           <button
-            onClick={() => handleDeleteMessage(message._id)}
+            // onClick={() => handleDeleteMessage(message._id)}
+            
+          onClick={() => deleteMessageForUser(message._id, userId)}
             className="delete-button"
           >
             <FaTrash />
@@ -313,6 +323,23 @@ function MessageContainer() {
     );
   };
 
+  const deleteMessageForUser = async (messageId, userId) => {
+    try {
+      const url = `${DELETE_USER_MESSAGE.replace(':id', messageId)}`; // Dynamically replace messageId in the URL
+
+      // Log the URL and payload to verify it's correct
+      console.log("API URL:", url);
+      console.log("Request payload:", { messageId, userId });
+
+      const response = await apiClient.patch(url, { messageId, userId });
+        console.log(response.data.message);
+        // alert("Message deleted successfully...!")
+        toast.success("Message deleted successfully...!");
+    } catch (error) {
+        console.error("Error deleting the message:", error.response.data.error || error.message);
+    }
+};
+
   const handleMessageClick = (messageId) => {
     // console.log("click on message");
 
@@ -379,3 +406,6 @@ function MessageContainer() {
 }
 
 export default MessageContainer;
+
+
+//userId is not pass to the renderdMmessages
