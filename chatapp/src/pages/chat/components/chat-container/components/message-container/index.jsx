@@ -1,6 +1,7 @@
 import { apiClient } from "@/lib/api-client";
 import { useAppStore } from "@/store";
 import {
+  DELETE_EVERYONE_ROUTE,
   DELETE_ONE_MESSAGE_ROUTE,
   DELETE_USER_MESSAGE,
   GET_ALL_CONTACTS_ROUTES,
@@ -355,26 +356,60 @@ function MessageContainer() {
     setMessageToDelete(messageId);
   };
 
+  // const handleDeleteMessage = async (messageId) => {
+  //   try {
+  //     const previousMessages = [...selectedChatMessages];
+  //     const updatedMessages = selectedChatMessages.filter(
+  //       (message) => message._id !== messageId
+  //     );
+  //     setSelectedChatMessages(updatedMessages);
+
+  //     const response = await apiClient.post(
+  //       `${DELETE_ONE_MESSAGE_ROUTE}`,
+  //       { messageId },
+  //       { withCredentials: true }
+  //     );
+
+  //     if (!response.data.success) {
+  //       alert(response.data.message || "Failed to delete the message.");
+  //       setSelectedChatMessages(previousMessages);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error deleting message:", error);
+  //   }
+  // };
+
   const handleDeleteMessage = async (messageId) => {
     try {
+      // Clone the current messages
       const previousMessages = [...selectedChatMessages];
-      const updatedMessages = selectedChatMessages.filter(
-        (message) => message._id !== messageId
+  
+      // Update the message to show "Message deleted for everyone"
+      const updatedMessages = selectedChatMessages.map((message) =>
+        message._id === messageId
+          ? { ...message, content: "Delete for everyone", deleted: true }
+          : message
       );
+  
+      // Update state to reflect the UI change
       setSelectedChatMessages(updatedMessages);
-
+  
+      // Make API call to delete the message
       const response = await apiClient.post(
-        `${DELETE_ONE_MESSAGE_ROUTE}`,
+        `${DELETE_EVERYONE_ROUTE}`,
         { messageId },
         { withCredentials: true }
       );
-
+  
       if (!response.data.success) {
+        // Revert back to previous messages if deletion failed
         alert(response.data.message || "Failed to delete the message.");
         setSelectedChatMessages(previousMessages);
       }
     } catch (error) {
+      // Handle errors and revert back to the previous state
       console.error("Error deleting message:", error);
+      setSelectedChatMessages(previousMessages);
     }
   };
 
