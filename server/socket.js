@@ -26,7 +26,6 @@ const setupSocket=(server)=>{
 
     const deleteMessage = async (messageId) => {
         try {
-          // Find the message
           const message = await Message.findById(messageId);
     
           if (!message) {
@@ -34,15 +33,12 @@ const setupSocket=(server)=>{
             return;
           }
     
-          // Delete the message from the database
           await Message.findByIdAndDelete(messageId);
     
           if (message.recipient) {
-            // Private message deletion
             const senderSocketId = userSocketMap.get(message.sender.toString());
             const recipientSocketId = userSocketMap.get(message.recipient.toString());
     
-            // Notify sender and recipient about the deletion
             if (senderSocketId) {
               io.to(senderSocketId).emit("messageDeleted", messageId);
             }
@@ -50,11 +46,9 @@ const setupSocket=(server)=>{
               io.to(recipientSocketId).emit("messageDeleted", messageId);
             }
           } else if (message.channelId) {
-            // Channel message deletion
             const channel = await Channel.findById(message.channelId).populate("members");
     
             if (channel && channel.members) {
-              // Notify all channel members about the deletion
               channel.members.forEach((member) => {
                 const memberSocketId = userSocketMap.get(member._id.toString());
                 if (memberSocketId) {
@@ -125,6 +119,7 @@ const setupSocket=(server)=>{
         }
 
     };
+    
     io.on("connection",(socket)=>{
         const userId= socket.handshake.query.userId;
 
@@ -136,7 +131,9 @@ const setupSocket=(server)=>{
         else{
             console.log("User id is not provided during connection")
         }
-
+        socket.on("deleteMessage", async (messageId) => {
+          await deleteMessage(messageId);
+      });
         socket.on("sendMessage",sendMessage)
         socket.on("send-channel-message",sendChannelMessage)
         socket.on("disconnect",()=>disconnect(socket))

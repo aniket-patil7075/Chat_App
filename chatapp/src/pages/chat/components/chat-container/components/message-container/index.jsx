@@ -18,6 +18,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getColor } from "@/lib/utils";
 import { FaTrash } from "react-icons/fa";
 import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 function MessageContainer() {
   const scrollRef = useRef();
@@ -34,6 +41,7 @@ function MessageContainer() {
   const [showImage, setShowImage] = useState(false);
   const [imageURL, setImageURL] = useState(null);
   const [messageToDelete, setMessageToDelete] = useState(null);
+  const [openNewContactModal, setOpenNewConatctModal] = useState(false);
 
   // console.log("User Id : ", userInfo.id)
   const userId = userInfo.id
@@ -110,7 +118,7 @@ function MessageContainer() {
               {moment(message.timestamp).format("LL")}
             </div>
           )}
-          {selectedChatType === "contact" && renderDMMessages(message , userInfo.id)}
+          {selectedChatType === "contact" && renderDMMessages(message, userInfo.id)}
           {selectedChatType === "channel" && renderChannelMessage(message)}
         </div>
       );
@@ -142,7 +150,7 @@ function MessageContainer() {
 
   // const messageRef = useRef(null);
 
-  
+
   // useEffect(() => {
   //   const handleClickOutside = (event) => {
   //     if (messageRef.current && !messageRef.current.contains(event.target)) {
@@ -157,18 +165,18 @@ function MessageContainer() {
   //   };
   // }, []);
 
-  const renderDMMessages = (message,userId) => (
+  const renderDMMessages = (message, userId) => (
 
     <div
-    // ref={messageRef}
+      // ref={messageRef}
       className={`${message.sender === selectedChatData._id ? "text-left" : "text-right"
         }`}
     >
       {message.messageType === "text" && (
         <div
           className={`${message.sender !== selectedChatData._id
-              ? "bg-[#8417ff]/5 text-[#6ea8f8]/90 border-[#6ea8f8]/50"
-              : "bg-[#2a2b33]/5 text-white/80 border-[#ffffff]/20"
+            ? "bg-[#8417ff]/5 text-[#6ea8f8]/90 border-[#6ea8f8]/50"
+            : "bg-[#2a2b33]/5 text-white/80 border-[#ffffff]/20"
             } border inline-block p-4 rounded my-1 max-w-[50%] break-words`}
           style={{ cursor: 'pointer' }}
           onClick={() => handleMessageClick(message._id)}
@@ -180,9 +188,9 @@ function MessageContainer() {
       {messageToDelete === message._id && (
         <div className="message-options">
           <button
-            // onClick={() => handleDeleteMessage(message._id)}
-            
-          onClick={() => deleteMessageForUser(message._id, userId)}
+            onClick={() => handleDeleteMessage(message._id)}
+            // onClick={() => deleteMessageForUser(message._id, userId)}
+            // onClick={() => setOpenNewConatctModal(true)}
             className="delete-button"
           >
             <FaTrash />
@@ -192,8 +200,8 @@ function MessageContainer() {
       {message.messageType == "file" && (
         <div
           className={`${message.sender !== selectedChatData._id
-              ? "bg-[#8417ff]/5 text-[#6ea8f8]/90 border-[#6ea8f8]/50"
-              : "bg-[#2a2b33]/5 text-white/80 border-[#ffffff]/20"
+            ? "bg-[#8417ff]/5 text-[#6ea8f8]/90 border-[#6ea8f8]/50"
+            : "bg-[#2a2b33]/5 text-white/80 border-[#ffffff]/20"
             } border inline-block p-4 rounded my-1 max-w-[50%] break-words`}
         >
           {checkIfImage(message.fileUrl) ? (
@@ -233,6 +241,8 @@ function MessageContainer() {
     </div>
   );
 
+
+
   const renderChannelMessage = (message) => {
     return (
       <div
@@ -242,8 +252,8 @@ function MessageContainer() {
         {message.messageType === "text" && (
           <div
             className={`${message.sender._id === userInfo.id
-                ? "bg-[#8417ff]/5 text-[#6ea8f8]/90 border-[#6ea8f8]/50"
-                : "bg-[#2a2b33]/5 text-white/80 border-[#ffffff]/20"
+              ? "bg-[#8417ff]/5 text-[#6ea8f8]/90 border-[#6ea8f8]/50"
+              : "bg-[#2a2b33]/5 text-white/80 border-[#ffffff]/20"
               } border inline-block p-4 rounded my-1 max-w-[50%] break-words ml-9`}
           >
             {message.content}
@@ -253,8 +263,8 @@ function MessageContainer() {
         {message.messageType == "file" && (
           <div
             className={`${message.sender._id === userInfo._id
-                ? "bg-[#8417ff]/5 text-[#6ea8f8]/90 border-[#6ea8f8]/50"
-                : "bg-[#2a2b33]/5 text-white/80 border-[#ffffff]/20"
+              ? "bg-[#8417ff]/5 text-[#6ea8f8]/90 border-[#6ea8f8]/50"
+              : "bg-[#2a2b33]/5 text-white/80 border-[#ffffff]/20"
               } border inline-block p-4 rounded my-1 max-w-[50%] break-words`}
           >
             {checkIfImage(message.fileUrl) ? (
@@ -326,29 +336,29 @@ function MessageContainer() {
 
   const deleteMessageForUser = async (messageId, userId) => {
     try {
-      const url = `${DELETE_USER_MESSAGE.replace(':id', messageId)}`; // Dynamically replace messageId in the URL
+      const url = `${DELETE_USER_MESSAGE.replace(':id', messageId)}`; 
 
-      // Log the URL and payload to verify it's correct
+      
       console.log("API URL:", url);
       console.log("Request payload:", { messageId, userId });
 
       const response = await apiClient.patch(url, { messageId, userId });
-        console.log(response.data.message);
-        // alert("Message deleted successfully...!")
-        toast.success("Message deleted successfully...!");
+      console.log(response.data.message);
+      // alert("Message deleted successfully...!")
+      toast.success("Message deleted successfully...!");
 
-        // const previousMessages = [...selectedChatMessages];
-        const updatedMessages = selectedChatMessages.filter(
-          (message) => message._id !== messageId
-        );
-        setSelectedChatMessages(updatedMessages);
+     
+      const updatedMessages = selectedChatMessages.filter(
+        (message) => message._id !== messageId
+      );
+      setSelectedChatMessages(updatedMessages);
 
-        
+
 
     } catch (error) {
-        console.error("Error deleting the message:", error.response.data.error || error.message);
+      console.error("Error deleting the message:", error.response.data.error || error.message);
     }
-};
+  };
 
   const handleMessageClick = (messageId) => {
     // console.log("click on message");
@@ -381,33 +391,34 @@ function MessageContainer() {
 
   const handleDeleteMessage = async (messageId) => {
     try {
-      // Clone the current messages
       const previousMessages = [...selectedChatMessages];
-  
-      // Update the message to show "Message deleted for everyone"
+
       const updatedMessages = selectedChatMessages.map((message) =>
         message._id === messageId
           ? { ...message, content: "Delete for everyone", deleted: true }
           : message
       );
-  
-      // Update state to reflect the UI change
+
       setSelectedChatMessages(updatedMessages);
-  
-      // Make API call to delete the message
+
       const response = await apiClient.post(
         `${DELETE_EVERYONE_ROUTE}`,
         { messageId },
         { withCredentials: true }
       );
-  
+
       if (!response.data.success) {
-        // Revert back to previous messages if deletion failed
         alert(response.data.message || "Failed to delete the message.");
         setSelectedChatMessages(previousMessages);
       }
+      updatedMessages = selectedChatMessages.map((message) =>
+        message._id === messageId
+          ? { ...message, content: "Delete for everyone", deleted: true }
+          : message
+      );
+
+      setSelectedChatMessages(updatedMessages);
     } catch (error) {
-      // Handle errors and revert back to the previous state
       console.error("Error deleting message:", error);
       setSelectedChatMessages(previousMessages);
     }
@@ -445,6 +456,23 @@ function MessageContainer() {
           </div>
         </div>
       )}
+      <Dialog open={openNewContactModal} onOpenChange={setOpenNewConatctModal}>
+        <DialogContent className="bg-[#181920] border-none text-white w-[200px] h-[170px] flex flex-col">
+          <DialogHeader>
+            <DialogTitle> </DialogTitle>
+            <DialogDescription></DialogDescription>
+          </DialogHeader>
+          <div style={{cursor:"pointer"}}>
+            <p>Delete for Me</p>
+          </div>
+          <div style={{cursor:"pointer"}}>
+            <p>Delete for Everyone</p>
+          </div>
+          <div  style={{cursor:"pointer"}}>
+            <p>Cancel</p>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
