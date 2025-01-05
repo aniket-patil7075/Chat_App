@@ -144,60 +144,65 @@ function CreateChannel() {
             <DialogDescription></DialogDescription>
           </DialogHeader>
           <div className="flex items-center my-4">
-            <div
-              className="h-25 w-25 md:w-25 md:h-25 relative flex items-center justify-center"
-              onMouseEnter={() => setHovered(true)}
-              onMouseLeave={() => setHovered(false)}
-            >
-              <Avatar className="h-22 w-22 md:w-28 md:h-28 rounded-full overflow-hidden">
-                {image ? (
-                  <AvatarImage
-                    src={image}
-                    alt="profile"
-                    className="object-cover w-full h-full bg-black"
-                  />
-                ) : (
-                  <div
-                    className={`uppercase h-22 w-22 md:w-28 md:h-28 text-5xl border-[1px] flex items-center justify-center rounded-full ${getColor(
-                      selectedColor
-                    )}`}
+            <div class="grid grid-cols-2 ">
+              <div
+                className="h-25 w-25 md:w-25 md:h-25 relative items-center justify-center"
+                onMouseEnter={() => setHovered(true)}
+                onMouseLeave={() => setHovered(false)}
+              >
+                <Avatar className="h-22 w-22 md:w-28 md:h-28 sm:w-20 sm:h-20 sm:ms-4 rounded-full overflow-hidden">
+                  {image ? (
+                    <AvatarImage
+                      src={image}
+                      alt="profile"
+                      className="object-cover w-full h-full bg-black"
+                    />
+                  ) : (
+                    <div
+                      className={`uppercase h-22 w-22 md:w-28 md:h-28 sm:w-20 sm:h-20 text-5xl border-[1px] flex items-center justify-center rounded-full ${getColor(
+                        selectedColor
+                      )}`}
+                    >
+                      #
+                    </div>
+                  )}
+                </Avatar>
+                <div>
+                  <Button
+                    className="mt-5 bg-sky-600 hover:bg-sky-700 transition-all duration-300"
+
+                    onClick={createChannel}
                   >
-                    #
-                  </div>
-                )}
-              </Avatar>
-              
+                    Create Channel
+                  </Button>
+                </div>
+              </div>
+              <div className="ml-3">
+                <Input
+                  placeholder="Channel Name"
+                  className="rounded-lg p-6 bg-[#2c2e3b] border-none mb-2"
+                  onChange={(e) => setChannelName(e.target.value)}
+                  value={channelName}
+                />
+                <MultipleSelector
+                  className="rounded-lg bg-[#2c2e3b] border-none ps-3 py-2 text-white"
+                  defaultOptions={allConatcts}
+                  placeholder="Search Contacts"
+                  value={selectedContacts}
+                  onChange={setSelectedContacts}
+                  emptyIndicator={
+                    <p className="text-center text-lg leading-10 text-gray-600">
+                      No results found.
+                    </p>
+                  }
+                />
+              </div>
             </div>
-            <div className="ml-3">
-              <Input
-                placeholder="Channel Name"
-                className="rounded-lg p-6 bg-[#2c2e3b] border-none mb-2"
-                onChange={(e) => setChannelName(e.target.value)}
-                value={channelName}
-              />
-              <MultipleSelector
-                className="rounded-lg bg-[#2c2e3b] border-none py-2 text-white"
-                defaultOptions={allConatcts}
-                placeholder="Search Contacts"
-                value={selectedContacts}
-                onChange={setSelectedContacts}
-                emptyIndicator={
-                  <p className="text-center text-lg leading-10 text-gray-600">
-                    No results found.
-                  </p>
-                }
-              />
-            </div>
+
+
           </div>
 
-          <div>
-            <Button
-              className="w-full bg-sky-600 hover:bg-sky-700 transition-all duration-300"
-              onClick={createChannel}
-            >
-              Create Channel
-            </Button>
-          </div>
+
         </DialogContent>
       </Dialog>
     </>

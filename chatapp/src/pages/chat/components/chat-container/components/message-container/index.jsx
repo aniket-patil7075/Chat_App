@@ -188,8 +188,8 @@ function MessageContainer() {
       {messageToDelete === message._id && (
         <div className="message-options">
           <button
-            onClick={() => handleDeleteMessage(message._id)}
-            // onClick={() => deleteMessageForUser(message._id, userId)}
+            // onClick={() => handleDeleteMessage(message._id)}
+            onClick={() => deleteMessageForUser(message._id, userId)}
             // onClick={() => setOpenNewConatctModal(true)}
             className="delete-button"
           >
