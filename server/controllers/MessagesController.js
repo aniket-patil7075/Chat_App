@@ -50,32 +50,49 @@ export const uploadFile =async (request , response, next )=>{
 
 }
 
-export const deleteChatMessages = async (request, response, next) => {
-    try {
-      const user1 = request.userId; 
-      const user2 = request.body.id; 
-  
-      if (!user1 || !user2) {
-        return response.status(400).send("Both user IDs are required.");
-      }
-  
-      const result = await Message.deleteMany({
-        $or: [
-          { sender: user1, recipient: user2 },
-          { sender: user2, recipient: user1 },
-        ],
-      });
-  
-      if (result.deletedCount === 0) {
-        return response.status(404).send("No messages found to delete.");
-      }
-  
-      return response.status(200).json({ message: "Messages deleted successfully." });
-    } catch (error) {
-      console.error({ error });
-      return response.status(500).send("Internal server error");
+export const deleteChatMessages = async (req, res, next) => {
+  console.log("Request body:", req.body);
+
+  const { id } = req.params; // chatId (sender)
+  const { userId, recepientId } = req.body;
+
+  if (!userId || !recepientId) {
+    return res.status(400).json({ error: "User ID and Recipient ID are required." });
+  }
+
+  try {
+    // Fetch messages where either the sender is the user and the recipient is the other user,
+    // or the sender is the other user and the recipient is the user.
+    const messages = await Message.find({
+      $or: [
+        { sender: id, recipient: recepientId },  // Sender is user, recipient is the other user
+        { sender: recepientId, recipient: id },  // Sender is the other user, recipient is user
+      ],
+    });
+
+    // Check if no messages were found
+    if (messages.length === 0) {
+      return res.status(404).json({ error: "No messages found between the specified users." });
     }
-  };
+
+    // Mark all messages as deleted only for the sender (userId)
+    await Promise.all(
+      messages.map(async (message) => {
+        // Mark as deleted for the sender only, if not already done
+        if (!message.isDeletedFor.includes(userId)) {
+          message.isDeletedFor.push(userId); // Mark as deleted for the user (sender)
+          await message.save();
+        }
+      })
+    );
+
+    res.status(200).json({ message: "All chat messages cleared for the sender." });
+  } catch (error) {
+    console.error("Error clearing all chat messages:", error);
+    res.status(500).json({ error: "An error occurred while clearing the chat." });
+  }
+};
+
   
 
   export const deleteMessage = async (req, res) => {

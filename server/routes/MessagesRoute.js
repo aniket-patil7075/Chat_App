@@ -15,7 +15,7 @@ messagesRoutes.post(
 
 export default messagesRoutes
 
-messagesRoutes.post("/delete-messages", verifyToken, deleteChatMessages);
+messagesRoutes.patch("/delete-messages/:id",  deleteChatMessages);
 messagesRoutes.post("/delete-msg",verifyToken,deleteMessage)
 messagesRoutes.patch('/messages/delete/:id', deleteMessageForUser);
 messagesRoutes.post("/delete-everyone",verifyToken,deleteForEveryone)

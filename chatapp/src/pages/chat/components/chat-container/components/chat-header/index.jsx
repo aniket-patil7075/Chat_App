@@ -3,7 +3,7 @@ import { apiClient } from "@/lib/api-client";
 import { getColor } from "@/lib/utils";
 import { useAppStore } from "@/store";
 import {
-  DELETE_CHAT_ROUTE,
+  CLEAR_ALL_CHAT,
   GET_USER_DETAILS_ROUTE,
   HOST,
 } from "@/utils/constants";
@@ -21,6 +21,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { FiEdit2 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { toast } from "sonner";
 
 
 function ChatHeader() {
@@ -30,6 +31,7 @@ function ChatHeader() {
     selectedChatData,
     setSelectedChatMessages,
     selectedChatType,
+    userInfo,
     selectedChatMessages,
   } = useAppStore();
   const [modalOpen, setModalOpen] = useState(false);
@@ -37,8 +39,12 @@ function ChatHeader() {
   const [usernames, setUsernames] = useState({});
   const [adminUsername, setAdminUsername] = useState("");
   const [userImages, setUserImages] = useState({});
+  const userId = userInfo.id;
+  const chatId = userInfo.id;
+  const recepientId = selectedChatData._id;
 
   // console.log("SelectedChat Data : ", selectedChatData)
+  // console.log("USER Id : " , userId)
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -95,35 +101,35 @@ function ChatHeader() {
     fetchUserDetails();
   }, [selectedChatData, selectedChatType]);
 
-  const handleDeleteChat = async () => {
+  const handleClearChat = async (chatId ,userId , recepientId) => {
+      
+    const confirmClear = window.confirm("Are you sure you want to clear all messages in this chat?");
+
+  if (!confirmClear) {
+    return; // If user clicks 'Cancel', do nothing and exit the function
+  }
+
     try {
-      if (window.confirm("Are you sure you want to delete this chat?")) {
-        // Optimistically update the UI
-        const previousMessages = [...selectedChatMessages];
-        setSelectedChatMessages([]);
-
-        // Send the delete request to the backend
-        const response = await apiClient.post(
-          DELETE_CHAT_ROUTE,
-          { id: selectedChatData._id },
-          { withCredentials: true }
-        );
-
-        if (response.data.success) {
-          alert("Chat deleted successfully!");
-        } else {
-          // If the backend fails, restore previous messages
-          alert(response.data.message || "Failed to delete chat.");
-          setSelectedChatMessages(previousMessages);
-        }
-      }
+      const url = `${CLEAR_ALL_CHAT.replace(':id', chatId)}`; 
+  
+      // console.log("API URL:", url);
+      // console.log("Request payload:", { chatId, userId , recepientId });
+  
+      const response = await apiClient.patch(url, { chatId, userId , recepientId });
+      // console.log(response.data.message);
+      toast.success("All chat messages cleared successfully!");
+  
+      // Update frontend state to remove all messages from the selected chat
+      setSelectedChatMessages([]);
     } catch (error) {
-      console.error("Error deleting chat:", error);
-      // Restore the previous messages in case of an error
-      setSelectedChatMessages(previousMessages);
-      alert("An error occurred while trying to delete the chat.");
+      console.error(
+        "Error clearing all chat messages:",
+        error.response?.data?.error || error.message
+      );
     }
   };
+  
+  
 
 
   const handleModalOpen = () => {
@@ -196,20 +202,23 @@ function ChatHeader() {
         </div>
 
         <div className="flex items-center justify-center gap-5 mr-5">
-          <button
-            className="text-neutral-500 focus:border-none focus:outline-none focus:text-white duration-300 transition-all"
-            onClick={handleDeleteChat}
-          >
-            <FaTrash className="text-xl cursor-pointer" />
-          </button>
+  {selectedChatType === "contact" && (
+    <button
+      className="text-neutral-500 focus:border-none focus:outline-none focus:text-white duration-300 transition-all"
+      onClick={() => handleClearChat(chatId, userId, recepientId)}
+    >
+      <FaTrash className="text-xl cursor-pointer" />
+    </button>
+  )}
 
-          <button
-            className="text-neutral-500 focus:border-none focus:outline-none focus:text-white duration-300 transition-all"
-            onClick={closeChat}
-          >
-            <RiCloseFill className="text-3xl" />
-          </button>
-        </div>
+  <button
+    className="text-neutral-500 focus:border-none focus:outline-none focus:text-white duration-300 transition-all"
+    onClick={closeChat}
+  >
+    <RiCloseFill className="text-3xl" />
+  </button>
+</div>
+
       </div>
 
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>

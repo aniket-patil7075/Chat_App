@@ -45,7 +45,7 @@ function MessageContainer() {
 
   // console.log("User Id : ", userInfo.id)
   const userId = userInfo.id
-  // console.log("User ID : ", userId)
+  console.log("User ID : ", userId)
 
   useEffect(() => {
     const getMessages = async () => {
@@ -255,11 +255,24 @@ function MessageContainer() {
               ? "bg-[#8417ff]/5 text-[#6ea8f8]/90 border-[#6ea8f8]/50"
               : "bg-[#2a2b33]/5 text-white/80 border-[#ffffff]/20"
               } border inline-block p-4 rounded my-1 max-w-[50%] break-words ml-9`}
+              style={{ cursor: 'pointer' }}
+          onClick={() => handleMessageClick(message._id)}
           >
             {message.content}
           </div>
         )}
-
+{messageToDelete === message._id && (
+        <div className="message-options">
+          <button
+            // onClick={() => handleDeleteMessage(message._id)}
+            onClick={() => deleteMessageForUser(message._id, userId)}
+            // onClick={() => setOpenNewConatctModal(true)}
+            className="delete-button"
+          >
+            <FaTrash />
+          </button>
+        </div>
+      )}
         {message.messageType == "file" && (
           <div
             className={`${message.sender._id === userInfo._id
@@ -339,8 +352,8 @@ function MessageContainer() {
       const url = `${DELETE_USER_MESSAGE.replace(':id', messageId)}`; 
 
       
-      console.log("API URL:", url);
-      console.log("Request payload:", { messageId, userId });
+      // console.log("API URL:", url);
+      // console.log("Request payload:", { messageId, userId });
 
       const response = await apiClient.patch(url, { messageId, userId });
       console.log(response.data.message);
