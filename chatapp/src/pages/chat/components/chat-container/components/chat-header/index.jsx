@@ -101,24 +101,24 @@ function ChatHeader() {
     fetchUserDetails();
   }, [selectedChatData, selectedChatType]);
 
-  const handleClearChat = async (chatId ,userId , recepientId) => {
-      
+  const handleClearChat = async (chatId, userId, recepientId) => {
+
     const confirmClear = window.confirm("Are you sure you want to clear all messages in this chat?");
 
-  if (!confirmClear) {
-    return; // If user clicks 'Cancel', do nothing and exit the function
-  }
+    if (!confirmClear) {
+      return; // If user clicks 'Cancel', do nothing and exit the function
+    }
 
     try {
-      const url = `${CLEAR_ALL_CHAT.replace(':id', chatId)}`; 
-  
+      const url = `${CLEAR_ALL_CHAT.replace(':id', chatId)}`;
+
       // console.log("API URL:", url);
       // console.log("Request payload:", { chatId, userId , recepientId });
-  
-      const response = await apiClient.patch(url, { chatId, userId , recepientId });
+
+      const response = await apiClient.patch(url, { chatId, userId, recepientId });
       // console.log(response.data.message);
       toast.success("All chat messages cleared successfully!");
-  
+
       // Update frontend state to remove all messages from the selected chat
       setSelectedChatMessages([]);
     } catch (error) {
@@ -128,8 +128,8 @@ function ChatHeader() {
       );
     }
   };
-  
-  
+
+
 
 
   const handleModalOpen = () => {
@@ -182,7 +182,7 @@ function ChatHeader() {
                     >
                       {selectedChatData.firstName
                         ? selectedChatData.firstName.charAt(0)
-                        : 
+                        :
                         "#"}
                     </div>
                   )}
@@ -202,33 +202,33 @@ function ChatHeader() {
         </div>
 
         <div className="flex items-center justify-center gap-5 mr-5">
-  {selectedChatType === "contact" && (
-    <button
-      className="text-neutral-500 focus:border-none focus:outline-none focus:text-white duration-300 transition-all"
-      onClick={() => handleClearChat(chatId, userId, recepientId)}
-    >
-      <FaTrash className="text-xl cursor-pointer" />
-    </button>
-  )}
+          {selectedChatType === "contact" && (
+            <button
+              className="text-neutral-500 focus:border-none focus:outline-none focus:text-white duration-300 transition-all"
+              onClick={() => handleClearChat(chatId, userId, recepientId)}
+            >
+              <FaTrash className="text-xl cursor-pointer" />
+            </button>
+          )}
 
-  <button
-    className="text-neutral-500 focus:border-none focus:outline-none focus:text-white duration-300 transition-all"
-    onClick={closeChat}
-  >
-    <RiCloseFill className="text-3xl" />
-  </button>
-</div>
+          <button
+            className="text-neutral-500 focus:border-none focus:outline-none focus:text-white duration-300 transition-all"
+            onClick={closeChat}
+          >
+            <RiCloseFill className="text-3xl" />
+          </button>
+        </div>
 
       </div>
 
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
         <DialogContent className="bg-[#181920] border-none text-white w-[350px] h-[300px] flex flex-col">
           <DialogHeader>
-          <h2 className="font-bold flex justify-center">Channel Details : </h2>
+            <h2 className="font-bold flex justify-center">Channel Details : </h2>
             <div className="flex gap-6 justify-center">
-            
+
               <DialogTitle className="text-gray-400">
-                
+
                 {selectedChatType === "channel"
                   ? selectedChatData.name
                   : `${userDetails?.firstName || ""} ${userDetails?.lastName || ""
@@ -254,66 +254,66 @@ function ChatHeader() {
               </TooltipProvider>
             </div>
             <DialogDescription>
-            {selectedChatType === "channel" && (
-              <div className="flex justify-center mt-2">
-                <Avatar className="h-20 w-20 rounded-full overflow-hidden 
+              {selectedChatType === "channel" && (
+                <div className="flex justify-center mt-2">
+                  <Avatar className="h-16 w-16 rounded-full overflow-hidden 
               
               ">
-                {selectedChatData.image ? (
-                  <AvatarImage
-                    src={`${HOST}/${selectedChatData.image}`}
-                    alt="profile"
-                    className="object-cover w-full h-full"
-                  />
-                ) : (
-                  <div
-                    className={`uppercase w-16 h-16 text-lg border-[1px] flex items-center justify-center rounded-full bg-gray-500 ${getColor(
-                      selectedChatData.color
-                    )}`}
-                  >
-                    {selectedChatData.firstName?.charAt(0) || "?"}
-                  </div>
-                )}
-              </Avatar>
-              </div>
+                    {selectedChatData.image ? (
+                      <AvatarImage
+                        src={`${HOST}/${selectedChatData.image}`}
+                        alt="profile"
+                        className="object-cover w-16 h-16"
+                      />
+                    ) : (
+                      <div
+                        className={`uppercase w-16 h-16 text-lg border-[1px] flex items-center justify-center rounded-full bg-gray-500 ${getColor(
+                          selectedChatData.color
+                        )}`}
+                      >
+                        {selectedChatData.firstName?.charAt(0) || "#"}
+                      </div>
+                    )}
+                  </Avatar>
+                </div>
               )}
               {selectedChatType === "channel" && (
                 <>
                   <div className="flex mt-3 ">
-                  <h4 className="font-bold text-white me-3">
-                    Admin  :{" "}</h4>
+                    <h4 className="font-bold text-white me-3">
+                      Admin  :{" "}</h4>
                     <span className="text-gray-400">
                       {adminUsername || "Loading..."}
                     </span>
                   </div>
-                  
+
                   <h4 className="my-2 text-white font-bold">Members :</h4>
                   <ScrollArea className="h-64">
-  <ul className="list-disc text-sm text-gray-400 pl-5">
-    {(selectedChatData.members || []).map((member) => (
-      <li key={member} className="mb-1 flex items-center gap-2">
-        <Avatar className="h-6 w-6 rounded-full overflow-hidden">
-          {userImages[member] ? (
-            <AvatarImage
-              src={`${HOST}/${userImages[member]}`}
-              alt="profile"
-              className="object-cover w-full h-full bg-black"
-            />
-          ) : (
-            <div
-              className={`uppercase w-6 h-6 text-xs border-[1px] flex items-center justify-center rounded-full ${getColor(
-                selectedChatData.color
-              )}`}
-            >
-              {usernames[member]?.charAt(0) || "?"}
-            </div>
-          )}
-        </Avatar>
-        {usernames[member] || "Loading..."}
-      </li>
-    ))}
-  </ul>
-</ScrollArea>;
+                    <ul className="list-disc text-sm text-gray-400 pl-5">
+                      {(selectedChatData.members || []).map((member) => (
+                        <li key={member} className="mb-1 flex items-center gap-2">
+                          <Avatar className="h-6 w-6 rounded-full overflow-hidden">
+                            {userImages[member] ? (
+                              <AvatarImage
+                                src={`${HOST}/${userImages[member]}`}
+                                alt="profile"
+                                className="object-cover w-full h-full bg-black"
+                              />
+                            ) : (
+                              <div
+                                className={`uppercase w-6 h-6 text-xs border-[1px] flex items-center justify-center rounded-full ${getColor(
+                                  selectedChatData.color
+                                )}`}
+                              >
+                                {usernames[member]?.charAt(0) || "?"}
+                              </div>
+                            )}
+                          </Avatar>
+                          {usernames[member] || "Loading..."}
+                        </li>
+                      ))}
+                    </ul>
+                  </ScrollArea>;
                 </>
               )}
               {selectedChatType === "contact" && (
