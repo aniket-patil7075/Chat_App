@@ -51,7 +51,7 @@ export const uploadFile =async (request , response, next )=>{
 }
 
 export const deleteChatMessages = async (req, res, next) => {
-  console.log("Request body:", req.body);
+  // console.log("Request body:", req.body);
 
   const { id } = req.params; // chatId (sender)
   const { userId, recepientId } = req.body;
@@ -118,7 +118,7 @@ export const deleteChatMessages = async (req, res, next) => {
 
 
   export const deleteMessageForUser = async (req, res) => {
-    console.log("Request body:", req.body); 
+    // console.log("Request body:", req.body); 
 
     const { id } = req.params; 
     const { userId } = req.body; 
@@ -148,7 +148,7 @@ export const deleteChatMessages = async (req, res, next) => {
 
 export const deleteForEveryone = async (req, res) => {
   const { messageId } = req.body;
-  console.log("Delete for everyone called..", req.body);
+  // console.log("Delete for everyone called..", req.body);
   
   
 try {
