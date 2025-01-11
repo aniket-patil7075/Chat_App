@@ -402,40 +402,40 @@ function MessageContainer() {
   //   }
   // };
 
-  const handleDeleteMessage = async (messageId) => {
-    try {
-      const previousMessages = [...selectedChatMessages];
+  // const handleDeleteMessage = async (messageId) => {
+  //   try {
+  //     const previousMessages = [...selectedChatMessages];
 
-      const updatedMessages = selectedChatMessages.map((message) =>
-        message._id === messageId
-          ? { ...message, content: "Delete for everyone", deleted: true }
-          : message
-      );
+  //     const updatedMessages = selectedChatMessages.map((message) =>
+  //       message._id === messageId
+  //         ? { ...message, content: "Delete for everyone", deleted: true }
+  //         : message
+  //     );
 
-      setSelectedChatMessages(updatedMessages);
+  //     setSelectedChatMessages(updatedMessages);
 
-      const response = await apiClient.post(
-        `${DELETE_EVERYONE_ROUTE}`,
-        { messageId },
-        { withCredentials: true }
-      );
+  //     const response = await apiClient.post(
+  //       `${DELETE_EVERYONE_ROUTE}`,
+  //       { messageId },
+  //       { withCredentials: true }
+  //     );
 
-      if (!response.data.success) {
-        alert(response.data.message || "Failed to delete the message.");
-        setSelectedChatMessages(previousMessages);
-      }
-      updatedMessages = selectedChatMessages.map((message) =>
-        message._id === messageId
-          ? { ...message, content: "Delete for everyone", deleted: true }
-          : message
-      );
+  //     if (!response.data.success) {
+  //       alert(response.data.message || "Failed to delete the message.");
+  //       setSelectedChatMessages(previousMessages);
+  //     }
+  //     updatedMessages = selectedChatMessages.map((message) =>
+  //       message._id === messageId
+  //         ? { ...message, content: "Delete for everyone", deleted: true }
+  //         : message
+  //     );
 
-      setSelectedChatMessages(updatedMessages);
-    } catch (error) {
-      console.error("Error deleting message:", error);
-      setSelectedChatMessages(previousMessages);
-    }
-  };
+  //     setSelectedChatMessages(updatedMessages);
+  //   } catch (error) {
+  //     console.error("Error deleting message:", error);
+  //     setSelectedChatMessages(previousMessages);
+  //   }
+  // };
 
   return (
     <div className="flex-1 overflow-y-auto scrollbar-hidden p-4 px-8 md:w-[65vw] lg:w-[70vw] xl:w-[80vw] w-full">
