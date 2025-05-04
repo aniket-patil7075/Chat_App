@@ -8,7 +8,7 @@
     "dev": "nodemon index.js"
   },
   "type": "module",
-  "author": "Ekata Jadhav",
+  "author": "Aniket Patil",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
