@@ -8,6 +8,7 @@ import { useAppStore } from "./store";
 import { apiClient } from "./lib/api-client";
 import { GET_USER_INFO } from "./utils/constants";
 import ChannelProfile from "./pages/chat/components/chat-container/components/channel-profile";
+import Loader from "./components/Loader";
 
 const PrivateRoute = ({ children }) => {
   const { userInfo } = useAppStore();
@@ -51,7 +52,7 @@ function App() {
   }, [userInfo, setUserInfo]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div><Loader /></div>;
   }
 
   return (
